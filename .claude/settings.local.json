@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/home/aryan/Data/bot/bot_tel/venv/bin/pip list *)"
+    ]
+  }
+}
