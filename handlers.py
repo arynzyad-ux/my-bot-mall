@@ -103,7 +103,7 @@ async def process_successful_entry(user_id: int, update: Update, context: Contex
                     parse_mode="HTML"
                 )
             except: pass
-            welcome_text = f"🎉 <b>خوش آمدید!</b>\n\n🎁 به دلیل ورود با لینک دعوت، مبلغ <code>{REFERREE_REWARD:,}</code> تومان هدیه ورود به کیف پول شما واریز شد!"  # noqa: F541
+            welcome_text = f"🎉 <b>خوش آمدید!</b>\n\n🎁 به دلیل ورود با لینک دعوت، مبلغ <code>{REFERREE_REWARD:,}</code> تومان هدیه ورود به کیف پول شما واریز شد!"
             return await show_main_menu(update, context, override_text=welcome_text)
     return await show_main_menu(update, context)
 
@@ -149,7 +149,11 @@ async def admin_wallet_user_received(update: Update, context: ContextTypes.DEFAU
         await update.message.reply_text("❌ آیدی عددی نامعتبر است. مجدداً ارسال کنید:")
         return ADMIN_GET_USER
     target_user_id = int(user_input)
-    current_bal = database.get_user_balance(target_user_id)
+    user_data = database.get_user_data(target_user_id)
+    if not user_data:
+        await update.message.reply_text("❌ کاربری با این آیدی در دیتابیس یافت نشد. مجدداً ارسال کنید:")
+        return ADMIN_GET_USER
+    current_bal = user_data.get("balance", 0)
     context.user_data["admin_target_user"] = target_user_id
     text = (
         f"👤 <b>کاربر پیدا شد:</b> <code>{target_user_id}</code>\n"
@@ -161,7 +165,7 @@ async def admin_wallet_user_received(update: Update, context: ContextTypes.DEFAU
     return ADMIN_GET_BALANCE_CHNG
 
 async def admin_wallet_amount_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_input = update.message.text.strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789'))
+    user_input = update.message.text.strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
     is_negative = user_input.startswith("-")
     clean_num = user_input.replace("-", "").strip()
     if not clean_num.isdigit():
@@ -190,7 +194,7 @@ async def admin_discount_start(update: Update, context: ContextTypes.DEFAULT_TYP
     return ADMIN_GET_DISCOUNT
 
 async def admin_discount_received(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_input = update.message.text.strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789'))
+    user_input = update.message.text.strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
     if not user_input.isdigit() or not (0 <= int(user_input) <= 100):
         await update.message.reply_text("❌ درصد تخفیف نامعتبر است. یک عدد بین 0 تا 100 بفرستید:")
         return ADMIN_GET_DISCOUNT
@@ -691,7 +695,7 @@ async def request_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await query.edit_message_text(text=text, reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
     return GET_AMOUNT
 async def process_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user_input = update.message.text.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789'))
+    user_input = update.message.text.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
     if not user_input.isdigit() or not (150000 <= int(user_input) <= 10000000):
         await update.message.reply_text("❌ <b>مبلغ نامعتبر!</b>\n\nمبلغ باید بین <code>150,000</code> تا <code>10,000,000</code> تومان باشد.\nدوباره وارد کنید:", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
         return GET_AMOUNT
@@ -733,6 +737,9 @@ async def process_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def handle_admin_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
+    if not is_admin(query.from_user.id):
+        await query.answer("❌ شما اجازه این عملیات را ندارید.", show_alert=True)
+        return
     await query.answer()
     data = query.data.split("_")
     action, user_id = data[1], int(data[2])
@@ -761,7 +768,7 @@ async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
         await query.answer("❌ شما مسدود شده‌اید.")
         return -1
     if not await check_joined_channels(query.from_user.id, context):
-        return
+        return -1
     await query.answer()
     text = (
         "🆘 <b>پشتیبانی آنلاین</b>\n\n"
