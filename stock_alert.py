@@ -24,10 +24,6 @@ STOCK_MAP = {
         "storage": lambda: config.V2RAY_STORAGE_15,
         "label": "🚀 انبار ۱۵ گیگابایت V2ray",
     },
-    "v2_25gb": {
-        "storage": lambda: config.V2RAY_STORAGE_25,
-        "label": "🚀 انبار ۲۵ گیگابایت V2ray",
-    },
     "v2_30gb": {
         "storage": lambda: config.V2RAY_STORAGE_30,
         "label": "🚀 انبار ۳۰ گیگابایت V2ray",
@@ -110,7 +106,7 @@ async def check_and_notify_low_stock(context, trigger_event: str = ""):
     summary_text = (
         f"\n📦 <b>موجودی کلی انبارها:</b>\n"
             f"  ◽ ۱۰ گیگ: <code>{all_counts['v2_10gb']['count']}</code> | ۱۵ گیگ: <code>{all_counts['v2_15gb']['count']}</code> | ۲۰ گیگ: <code>{all_counts['v2_20gb']['count']}</code>\n"
-            f"  ◽ ۲۵ گیگ: <code>{all_counts['v2_25gb']['count']}</code> | ۳۰ گیگ: <code>{all_counts['v2_30gb']['count']}</code>\n"
+            f"  ◽ ۳۰ گیگ: <code>{all_counts['v2_30gb']['count']}</code>\n"
             f"  ◽ ۷۰ گیگ: <code>{all_counts['v2_70gb']['count']}</code> | ۱۰۰ گیگ: <code>{all_counts['v2_100gb']['count']}</code>\n"
             f"  ◽ اکسپرس: <code>{all_counts['express']['count']}</code>\n"
     )

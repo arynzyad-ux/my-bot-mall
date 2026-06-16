@@ -280,14 +280,14 @@ async def admin_view_stock(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"{stock_status_icon(len(config.V2RAY_STORAGE_10))} انبار ۱۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_10)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_15))} انبار ۱۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_15)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_20))} انبار ۲۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_20)}</code> کانفیگ\n"
-        f"{stock_status_icon(len(config.V2RAY_STORAGE_25))} انبار ۲۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_25)}</code> کانفیگ\n"
+        # 25 گیگ حذف شد
         f"{stock_status_icon(len(config.V2RAY_STORAGE_30))} انبار ۳۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_30)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_70))} انبار ۷۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_70)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_100))} انبار ۱۰۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_100)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.EXPRESS_CENTRAL_STORAGE))} مخزن مرکزی اکسپرس: <code>{len(config.EXPRESS_CENTRAL_STORAGE)}</code> اکانت\n\n"
         f"⏳ <b>صف‌های انتظار:</b>\n"
         f"◽ صف ۱۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_10gb'])}</code> نفر | صف ۱۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_15gb'])}</code> نفر\n"
-        f"◽ صف ۲۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_20gb'])}</code> نفر | صف ۲۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_25gb'])}</code> نفر\n"
+        f"◽ صف ۲۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_20gb'])}</code> نفر\n"
         f"◽ صف ۳۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_30gb'])}</code> نفر\n"
         f"◽ صف ۷۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_70gb'])}</code> نفر | صف ۱۰۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_100gb'])}</code> نفر\n"
         f"◽ صف اکسپرس تک کاربره: <code>{len(config.WAITING_QUEUE['ex_1user'])}</code> نفر | دو کاربره: <code>{len(config.WAITING_QUEUE['ex_2user'])}</code> نفر"
@@ -300,7 +300,7 @@ async def admin_add_stock_menu(update: Update, context: ContextTypes.DEFAULT_TYP
     text = "📥 <b>بخش شارژ هوشمند انبار ربات</b>\n\nلطفاً انتخاب کنید قصد دارید به کدام انبار کالا یا کانفیگ جدید اضافه کنید:"
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🚀 شارژ ۱۰ گیگ V2ray", callback_data="add_stock_v2_10"), InlineKeyboardButton("🚀 شارژ ۱۵ گیگ V2ray", callback_data="add_stock_v2_15")],
-        [InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20"), InlineKeyboardButton("🚀 شارژ ۲۵ گیگ V2ray", callback_data="add_stock_v2_25")],
+        [InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20")],
         [InlineKeyboardButton("🚀 شارژ ۳۰ گیگ V2ray", callback_data="add_stock_v2_30"), InlineKeyboardButton("🚀 شارژ ۷۰ گیگ V2ray", callback_data="add_stock_v2_70")],
         [InlineKeyboardButton("🚀 شارژ ۱۰۰ گیگ V2ray", callback_data="add_stock_v2_100")],
         [InlineKeyboardButton("🔐 شارژ مخزن اکسپرس", callback_data="add_stock_express")],
@@ -318,7 +318,7 @@ async def admin_add_stock_select(update: Update, context: ContextTypes.DEFAULT_T
         "v2_10": "🚀 انبار ۱۰ گیگابایت V2ray",
         "v2_15": "🚀 انبار ۱۵ گیگابایت V2ray",
         "v2_20": "🚀 انبار ۲۰ گیگابایت V2ray",
-        "v2_25": "🚀 انبار ۲۵ گیگابایت V2ray",
+        # 25 گیگ حذف شد
         "v2_30": "🚀 انبار ۳۰ گیگابایت V2ray",
         "v2_70": "🚀 انبار ۷۰ گیگابایت V2ray",
         "v2_100": "🚀 انبار ۱۰۰ گیگابایت V2ray",
@@ -340,7 +340,7 @@ async def admin_add_stock_save(update: Update, context: ContextTypes.DEFAULT_TYP
         "v2_10":  (config.V2RAY_STORAGE_10,  "۱۰ گیگ",  "v2_10gb"),
         "v2_15":  (config.V2RAY_STORAGE_15,  "۱۵ گیگ",  "v2_15gb"),
         "v2_20":  (config.V2RAY_STORAGE_20,  "۲۰ گیگ",  "v2_20gb"),
-        "v2_25":  (config.V2RAY_STORAGE_25,  "۲۵ گیگ",  "v2_25gb"),
+        # 25 گیگ حذف شد
         "v2_30":  (config.V2RAY_STORAGE_30,  "۳۰ گیگ",  "v2_30gb"),
         
         "v2_70":  (config.V2RAY_STORAGE_70,  "۷۰ گیگ",  "v2_70gb"),
@@ -403,7 +403,6 @@ async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TY
         "v2_10gb": config.V2RAY_STORAGE_10,
         "v2_15gb": config.V2RAY_STORAGE_15,
         "v2_20gb": config.V2RAY_STORAGE_20,
-        "v2_25gb": config.V2RAY_STORAGE_25,
         "v2_30gb": config.V2RAY_STORAGE_30,
         "v2_70gb": config.V2RAY_STORAGE_70,
         "v2_100gb": config.V2RAY_STORAGE_100,
@@ -599,7 +598,6 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "v2_10gb": config.V2RAY_STORAGE_10,
             "v2_15gb": config.V2RAY_STORAGE_15,
             "v2_20gb": config.V2RAY_STORAGE_20,
-            "v2_25gb": config.V2RAY_STORAGE_25,
             "v2_30gb": config.V2RAY_STORAGE_30,
             "v2_70gb": config.V2RAY_STORAGE_70,
             "v2_100gb": config.V2RAY_STORAGE_100,
