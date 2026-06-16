@@ -2,7 +2,9 @@
 import os
 
 # 🎫 توکن ربات تلگرام و آیدی عددی مدیر اصلی
-TOKEN = "8924212172:AAE8Jr_Dkd7k8denlWzCbP7zd2930LIraIA"  # توکن ربات خود را اینجا بگذارید
+TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")  # از environment variable بخوان
+if TOKEN == "YOUR_BOT_TOKEN_HERE":
+    raise ValueError("❌ متغیر BOT_TOKEN در محیط تعریف نشده است")
 ADMIN_IDS = [6074037196, 6482904591] # لیست ادمین‌ها
 ADMIN_ID = ADMIN_IDS[0]  # ادمین اصلی (برای ارسال نوتیفیکیشن‌ها)
 

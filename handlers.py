@@ -122,7 +122,8 @@ async def admin_menu_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("💰 شارژ/کسر از موجودی کاربر", callback_data="admin_manage_wallet"), InlineKeyboardButton("📉 تنظیم درصد تخفیف", callback_data="admin_set_discount")],
         [InlineKeyboardButton("🚫 بلاک کردن کاربر", callback_data="admin_block_user"), InlineKeyboardButton("🟢 آن‌بلاک کردن کاربر", callback_data="admin_unblock_user")],
         [InlineKeyboardButton("📢 ارسال پیام همگانی", callback_data="admin_broadcast"), InlineKeyboardButton("📦 موجودی و آمار انبار", callback_data="admin_view_stock")],
-        [InlineKeyboardButton("📥 شارژ دکمه‌ای انبار (جدید)", callback_data="admin_add_stock_menu"), InlineKeyboardButton("📊 گزارش پیشرفته ربات (Live)", callback_data="admin_full_report")]
+        [InlineKeyboardButton("⭐ کاربران برتر و پاداش", callback_data="admin_top_users"), InlineKeyboardButton("📥 شارژ انبار", callback_data="admin_add_stock_menu")],
+        [InlineKeyboardButton("📊 گزارش پیشرفته ربات (Live)", callback_data="admin_full_report")]
     ])
     if update.message:
         await update.message.reply_text(text=text, reply_markup=keyboard, parse_mode="HTML")
@@ -149,11 +150,19 @@ async def admin_wallet_user_received(update: Update, context: ContextTypes.DEFAU
     if not user_input.isdigit():
         await update.message.reply_text("❌ آیدی عددی نامعتبر است. مجدداً ارسال کنید:")
         return ADMIN_GET_USER
+
     target_user_id = int(user_input)
     user_data = database.get_user_data(target_user_id)
     if not user_data:
         await update.message.reply_text("❌ کاربری با این آیدی در دیتابیس یافت نشد. مجدداً ارسال کنید:")
         return ADMIN_GET_USER
+
+    action = context.user_data.get("admin_action", "wallet")
+
+    if action == "search_user_reward":
+        return await admin_user_reward_menu(update, context)
+
+    # action == "wallet"
     current_bal = user_data.get("balance", 0)
     context.user_data["admin_target_user"] = target_user_id
     text = (
@@ -172,20 +181,55 @@ async def admin_wallet_amount_received(update: Update, context: ContextTypes.DEF
     if not clean_num.isdigit():
         await update.message.reply_text("❌ فقط عدد وارد کنید:")
         return ADMIN_GET_BALANCE_CHNG
+
     amount = int(clean_num)
-    if is_negative: 
+    if is_negative:
         amount = -amount
+
     target_user_id = context.user_data.get("admin_target_user")
+    action = context.user_data.get("admin_action", "wallet")
+
     database.update_user_balance(target_user_id, amount)
     new_bal = database.get_user_balance(target_user_id)
-    if amount > 0:
-        await update.message.reply_text(f"✅ حساب کاربر <code>{target_user_id}</code> به مبلغ <code>{amount:,}</code> تومان شارژ شد.", parse_mode="HTML")
-        try: await context.bot.send_message(chat_id=target_user_id, text=f"🎉 <b>کیف پول شما توسط مدیریت شارژ شد!</b>\n➕ مبلغ افزایش: <code>{amount:,}</code> تومان\n💵 موجودی جدید: <code>{new_bal:,}</code> تومان", parse_mode="HTML")
-        except: pass
+
+    if action == "reward_amount":
+        await update.message.reply_text(
+            f"✅ <b>پاداش دادن شد!</b>\n\n"
+            f"👤 کاربر: <code>{target_user_id}</code>\n"
+            f"💰 مبلغ: <code>{amount:,}</code> تومان\n"
+            f"💵 موجودی جدید: <code>{new_bal:,}</code> تومان",
+            parse_mode="HTML"
+        )
+        try:
+            await context.bot.send_message(
+                chat_id=target_user_id,
+                text=f"🎁 <b>پاداش ویژه از مدیریت!</b>\n\n💰 مبلغ <code>{amount:,}</code> تومان به حساب شما اضافه شد.\n💵 موجودی: <code>{new_bal:,}</code> تومان",
+                parse_mode="HTML"
+            )
+        except Exception as e:
+            logging.error(f"Failed to send reward message: {e}")
     else:
-        await update.message.reply_text(f"✅ به مبلغ <code>{abs(amount):,}</code> تومان از حساب کاربر <code>{target_user_id}</code> کسر شد.", parse_mode="HTML")
-        try: await context.bot.send_message(chat_id=target_user_id, text=f"⚠️ <b>کیف پول شما توسط مدیریت تغییر کرد.</b>\n➖ مبلغ کسر شده: <code>{abs(amount):,}</code> تومان\n💵 موجودی جدید: <code>{new_bal:,}</code> تومان", parse_mode="HTML")
-        except: pass
+        if amount > 0:
+            await update.message.reply_text(f"✅ حساب کاربر <code>{target_user_id}</code> به مبلغ <code>{amount:,}</code> تومان شارژ شد.", parse_mode="HTML")
+            try:
+                await context.bot.send_message(
+                    chat_id=target_user_id,
+                    text=f"🎉 <b>کیف پول شما توسط مدیریت شارژ شد!</b>\n➕ مبلغ افزایش: <code>{amount:,}</code> تومان\n💵 موجودی جدید: <code>{new_bal:,}</code> تومان",
+                    parse_mode="HTML"
+                )
+            except Exception as e:
+                logging.error(f"Failed to send charge message: {e}")
+        else:
+            await update.message.reply_text(f"✅ به مبلغ <code>{abs(amount):,}</code> تومان از حساب کاربر <code>{target_user_id}</code> کسر شد.", parse_mode="HTML")
+            try:
+                await context.bot.send_message(
+                    chat_id=target_user_id,
+                    text=f"⚠️ <b>کیف پول شما توسط مدیریت تغییر کرد.</b>\n➖ مبلغ کسر شده: <code>{abs(amount):,}</code> تومان\n💵 موجودی جدید: <code>{new_bal:,}</code> تومان",
+                    parse_mode="HTML"
+                )
+            except Exception as e:
+                logging.error(f"Failed to send deduction message: {e}")
+
     return await admin_cancel(update, context)
 
 async def admin_discount_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -487,7 +531,7 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, ove
     welcome_text = override_text if override_text else f"👋 <b>سلام {user.first_name} عزیز</b>\nبه ربات خدمات ما خوش آمدید.\n\n🎯 لطفاً از منوی زیر انتخاب کنید:"
     keyboard = [
         [InlineKeyboardButton("🛒 خرید اشتراک ویژه", callback_data="buy_subscription"), InlineKeyboardButton("💰 کیف پول من", callback_data="wallet")],
-        [InlineKeyboardButton("📚 بخش آموزش‌ها", callback_data="tutorials"), InlineKeyboardButton("📋 اشتراک‌های من", callback_data="my_subs_page_0")],
+        [InlineKeyboardButton("📚 بخش آموزش‌ها", callback_data="tutorials"), InlineKeyboardButton("📋 تاریخچه خریدها", callback_data="user_history")],
         [InlineKeyboardButton("🤝 دعوت از دوستان", callback_data="invite_friends"), InlineKeyboardButton("🆘 پشتیبانی آنلاین", callback_data="support")]
     ]
     if update.message:
@@ -499,35 +543,38 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, ove
 async def invite_friends_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     user_id = query.from_user.id
-    
-    if is_user_blacklisted(user_id) or not await check_joined_channels(user_id, context): 
+
+    if is_user_blacklisted(user_id) or not await check_joined_channels(user_id, context):
         return
-    
+
     await query.answer()
-    
-    # ساخت لینک دعوت
+
     referral_link = f"https://t.me/{BOT_USERNAME}?start={user_id}"
-    
-    # دریافت آمار دعوت‌ها از دیتابیس
+
     user_data = database.get_user_data(user_id)
     invited_count = user_data.get("total_invited", 0) if user_data else 0
-    
-    # ساخت متن با فرمت HTML برای جلوگیری از خطای کاراکترهای خاص
+
     text = (
-        "🤝 <b>بخش کسب درآمد و دعوت از دوستان</b>\n\n"
-        "🎁 با معرفی ربات ما به دوستان خود، یک هدیه دو طرفه و رویایی دریافت کنید!\n\n"
-        f"💵 سهم شما (میزبان): <code>{REFERRER_REWARD:,}</code> تومان\n"
-        f"💵 سهم دوست شما (میهمان): <code>{REFERREE_REWARD:,}</code> تومان\n\n"
-        "⚠️ <b>شرط واریز هدیه:</b> دوست شما باید وارد ربات شده و عضو کانال‌های اسپانسر ما شود.\n\n"
-        f"📊 آمار دعوت‌های شما: <code>{invited_count}</code> نفر\n\n"
-        f"🔗 <b>لینک دعوت اختصاصی شما:</b>\n<code>{referral_link}</code>"
+        "🎁 <b>برنامه هدیه‌های ویژه و مکافات دوستان</b>\n\n"
+        "دوستان خود را به ربات ما دعوت کنید و هدیه‌های جذاب دریافت کنید!\n\n"
+        f"💝 <b>سیستم مکافات:</b>\n"
+        f"  🎯 برای هر دوستی که دعوت می‌کنید: <code>{REFERRER_REWARD:,}</code> تومان\n"
+        f"  🎁 دوست شما دریافت می‌کند: <code>{REFERREE_REWARD:,}</code> تومان\n\n"
+        f"⚡ <b>شرایط:</b>\n"
+        f"  ✓ دوست شما باید وارد ربات شود\n"
+        f"  ✓ دوست شما باید تمام کانال‌های اسپانسر را join کند\n"
+        f"  ✓ خودکار برای هر دو نفر ثبت می‌شود!\n\n"
+        f"📊 <b>آمار دعوت‌های شما:</b>\n"
+        f"  تعداد دوستان دعوت شده: <code>{invited_count}</code> نفر\n"
+        f"  درآمد کسب شده: <code>{invited_count * REFERRER_REWARD:,}</code> تومان\n\n"
+        f"🔗 <b>لینک اختصاصی شما:</b>\n<code>{referral_link}</code>"
     )
-    
+
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔗 کپی لینک دعوت", switch_inline_query=f"\n🚀 با لینک من وارد ربات شو و {REFERREE_REWARD:,} تومان هدیه بگیر:\n{referral_link}")],
         [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main")]
     ])
-    
+
     await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
 
 async def buy_subscription_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -588,6 +635,13 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_v2ray:
         # special-case: unlimited plan is fulfilled immediately (no storage required)
         if plan_id == "v2_unlimited":
+            plan_price = get_discounted_price(plan["price"])
+            user_balance = database.get_user_balance(user_id)
+            if user_balance < plan_price:
+                shortage = plan_price - user_balance
+                await query.edit_message_text(text=f"❌ <b>موجودی کافی نیست!</b>\n\n💰 قیمت: <code>{plan_price:,}</code> تومان\n💵 موجودی: <code>{user_balance:,}</code> تومان\n📉 کسری: <code>{shortage:,}</code> تومان", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⚡ شارژ حساب", callback_data="charge_wallet")],[InlineKeyboardButton("🔙 بازگشت", callback_data="buy_v2ray")]]), parse_mode="HTML")
+                return
+            database.update_user_balance(user_id, -plan_price)
             user_name_identifier = generate_account_username(first_name)
             database.add_order(user_id, user_name_identifier, plan['name'], plan_price, "🔓 اشتراک نامحدود")
             await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n🔓 اشتراک نامحدود فعال شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
@@ -608,27 +662,37 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
         shortage = plan_price - user_balance
         await query.edit_message_text(text=f"❌ <b>موجودی کافی نیست!</b>\n\n💰 قیمت: <code>{plan_price:,}</code> تومان\n💵 موجودی: <code>{user_balance:,}</code> تومان\n📉 کسری: <code>{shortage:,}</code> تومان", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⚡ شارژ حساب", callback_data="charge_wallet")],[InlineKeyboardButton("🔙 بازگشت", callback_data="buy_v2ray" if is_v2ray else "buy_express")]]), parse_mode="HTML")
         return
-    database.update_user_balance(user_id, -plan_price)
-    new_balance = database.get_user_balance(user_id)
+
     if is_v2ray:
+        v2ray_storage_map = {
+            "v2_10gb": config.V2RAY_STORAGE_10,
+            "v2_15gb": config.V2RAY_STORAGE_15,
+            "v2_20gb": config.V2RAY_STORAGE_20,
+            "v2_30gb": config.V2RAY_STORAGE_30,
+            "v2_70gb": config.V2RAY_STORAGE_70,
+            "v2_100gb": config.V2RAY_STORAGE_100,
+        }
         storage = v2ray_storage_map.get(plan_id)
         if storage is not None and len(storage) > 0:
             delivered = storage.pop(0)
             save_all_storages()
+            database.update_user_balance(user_id, -plan_price)
+            new_balance = database.get_user_balance(user_id)
             user_name_identifier = generate_account_username(first_name)
             database.add_order(user_id, user_name_identifier, plan['name'], plan_price, f"🔗 <b>لینک اتصال:</b>\n<code>{delivered}</code>")
             balance_text = f"💵 موجودی: {new_balance:,} تومان\n" if plan_id == "v2_20gb" else ""
             remaining = len(storage)
             await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n{balance_text}🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n<code>{delivered}</code>\n\n📦 از انبار <b>{plan['name']}</b> تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
             try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید جدید</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان\n📦 موجودی باقی‌مانده در انبار: <code>{remaining}</code>", parse_mode="HTML")
-            except: pass
+            except Exception as e: logging.error(f"Failed to send admin message: {e}")
             await stock_alert.check_and_notify_low_stock(context, trigger_event=f"خرید {plan['name']} توسط {first_name}")
         else:
+            database.update_user_balance(user_id, -plan_price)
             config.WAITING_QUEUE[plan_id].append(user_id)
             save_all_storages()
             await query.edit_message_text(text=f"💸 مبلغ <code>{plan_price:,}</code> تومان از حساب شما کسر شد.\n\n⏳ شما در <b>صف انتظار</b> پلن <b>{plan['name']}</b> قرار گرفتید.\nبه محض شارژ انبار، اشتراک شما به صورت خودکار تحویل داده خواهد شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
             try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"⚠️ <b>هشدار کمبود انبار و تشکیل صف!</b>\n\n👤 کاربر: {first_name} ({username})\n📦 پلن: <b>{plan['name']}</b>\n📥 کاربر وارد صف انتظار شد.", parse_mode="HTML")
-            except: pass
+            except Exception as e: logging.error(f"Failed to send queue alert: {e}")
     else:
         needed_count = 1 if plan_id == "ex_1user" else 2
         if len(config.EXPRESS_CENTRAL_STORAGE) >= needed_count:
@@ -1072,9 +1136,137 @@ async def tutorials_macos_menu(update: Update, context: ContextTypes.DEFAULT_TYP
     ])
     await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
 
+async def admin_top_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """نمایش کاربران برتر برای ادمین"""
+    query = update.callback_query
+    if not is_admin(query.from_user.id):
+        await query.answer("❌ دسترسی محدود", show_alert=True)
+        return -1
+    await query.answer()
+
+    top_users = database.get_top_users(limit=15, sort_by="amount")
+
+    if not top_users:
+        text = "📊 <b>آمار کاربران برتر</b>\n\nهنوز سفارشی ثبت نشده است."
+        keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="admin_back")]])
+        await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+        return -1
+
+    text = "📊 <b>۱۵ کاربر برتر (براساس مبلغ کل)</b>\n\n"
+    for idx, user in enumerate(top_users, 1):
+        user_id = user["user_id"]
+        spent = user["total_spent"]
+        count = user["purchase_count"]
+        text += f"{idx}️⃣ <code>{user_id}</code> | <b>{spent:,}</b> تومان | {count} خرید\n"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔍 جستجوی کاربر", callback_data="admin_search_user_reward")],
+        [InlineKeyboardButton("🔙 بازگشت", callback_data="admin_back")]
+    ])
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+    return -1
+
+
+async def admin_search_user_reward(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """ادمین می‌خواهد کاربر را جستجو کند برای دادن پاداش"""
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(
+        text="🔍 <b>جستجوی کاربر</b>\n\nآیدی کاربری را که می‌خواهید پاداش بدهید وارد کنید:",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 انصراف", callback_data="admin_back")]]),
+        parse_mode="HTML"
+    )
+    context.user_data["admin_action"] = "search_user_reward"
+    return ADMIN_GET_USER
+
+
+async def admin_user_reward_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """منوی پاداش‌دهی کاربر"""
+    user_input = update.message.text.strip()
+    if not user_input.isdigit():
+        await update.message.reply_text("❌ آیدی نامعتبر است")
+        return ADMIN_GET_USER
+
+    target_user_id = int(user_input)
+    user_data = database.get_user_data(target_user_id)
+    if not user_data:
+        await update.message.reply_text("❌ کاربر یافت نشد")
+        return ADMIN_GET_USER
+
+    stats = database.get_user_purchase_stats(target_user_id)
+    context.user_data["reward_target_user"] = target_user_id
+
+    text = (
+        f"👤 <b>اطلاعات کاربر:</b>\n"
+        f"🆔 آیدی: <code>{target_user_id}</code>\n"
+        f"💵 موجودی: <code>{user_data['balance']:,}</code> تومان\n\n"
+        f"📊 <b>آمار خرید:</b>\n"
+        f"🛒 تعداد سفارش: <code>{stats['purchase_count']}</code>\n"
+        f"💰 مجموع خرج: <code>{stats['total_spent']:,}</code> تومان\n\n"
+        f"<b>پاداش دادن:</b>"
+    )
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("💰 شارژ حساب", callback_data="admin_reward_charge")],
+        [InlineKeyboardButton("🔙 انصراف", callback_data="admin_back")]
+    ])
+
+    await update.message.reply_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+    return -1
+
+
+async def admin_reward_charge(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """ادمین مبلغ پاداش را وارد می‌کند"""
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(
+        text="💰 <b>مبلغ پاداش (تومان):</b>\n\nمثال: 50000",
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 انصراف", callback_data="admin_back")]]),
+        parse_mode="HTML"
+    )
+    context.user_data["admin_action"] = "reward_amount"
+    return ADMIN_GET_BALANCE_CHNG
+
+
+# ─── منوی تاریخچه کاربران (برای کاربران عادی) ────────────────
+
+async def user_history_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """نمایش تاریخچه خریدهای کاربر"""
+    query = update.callback_query
+    user_id = query.from_user.id
+
+    if is_user_blacklisted(user_id) or not await check_joined_channels(user_id, context):
+        return
+
+    await query.answer()
+
+    orders = database.get_user_order_history(user_id, limit=10)
+    stats = database.get_user_purchase_stats(user_id)
+
+    if not orders:
+        text = "📋 <b>تاریخچه خریدهای شما</b>\n\nهنوز هیچ سفارشی ثبت نشده است."
+        keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("🔙 منوی اصلی", callback_data="back_to_main")]])
+        await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+        return
+
+    text = (
+        f"📋 <b>تاریخچه خریدهای شما</b>\n\n"
+        f"🛒 <b>آمار:</b>\n"
+        f"  تعداد کل سفارش: <code>{stats['purchase_count']}</code>\n"
+        f"  مجموع خرج: <code>{stats['total_spent']:,}</code> تومان\n\n"
+        f"<b>۱۰ سفارش اخیر:</b>\n\n"
+    )
+
+    for idx, order in enumerate(orders, 1):
+        date = order['date'].split()[0] if order['date'] else "نامشخص"
+        text += f"{idx}. {order['plan_name']} | {order['amount']:,} تومان | {date}\n"
+
+    keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("🔙 منوی اصلی", callback_data="back_to_main")]])
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+
+
 # 🔥 هندلر جامع مرکزی دکمه‌های شیشه‌ای برای حل مشکل هدایت دکمه‌ها
 async def handle_main_menu_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
     if not query: return
     user_id = query.from_user.id
     if is_user_blacklisted(user_id):
@@ -1106,5 +1298,11 @@ async def handle_main_menu_callbacks(update: Update, context: ContextTypes.DEFAU
         return await tutorials_menu(update, context)
     elif query.data == "tutorials_android":
         return await tutorials_android_menu(update, context)
-    elif query.data == "tutorials_ios":
-        return await tutorials_ios_menu(update, context)
+    elif query.data == "tutorials_windows":
+        return await tutorials_windows_menu(update, context)
+    elif query.data == "tutorials_macos":
+        return await tutorials_macos_menu(update, context)
+    elif query.data == "user_history":
+        return await user_history_menu(update, context)
+    elif query.data == "admin_top_users":
+        return await admin_top_users(update, context)

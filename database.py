@@ -98,6 +98,9 @@ def get_user_data(user_id):
 
 
 def update_user_field(user_id, field, value):
+    allowed_fields = {"balance", "referred_by", "reward_claimed", "total_invited"}
+    if field not in allowed_fields:
+        raise ValueError(f"Invalid field: {field}")
     conn = _get_conn()
     c = conn.cursor()
     c.execute(f"UPDATE users SET {field} = ? WHERE user_id = ?", (value, user_id))
@@ -244,6 +247,86 @@ def count_free_configs(config_type):
     row = c.fetchone()
     conn.close()
     return row["cnt"] if row else 0
+
+
+# ─── تاریخچه و تحلیل کاربران ────────────────────────────────
+
+def get_user_purchase_stats(user_id):
+    """دریافت آمار خرید کاربر"""
+    conn = _get_conn()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) as count, SUM(amount) as total FROM orders WHERE user_id = ?", (user_id,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return {
+            "purchase_count": row["count"] or 0,
+            "total_spent": row["total"] or 0
+        }
+    return {"purchase_count": 0, "total_spent": 0}
+
+
+def get_top_users(limit=10, sort_by="count"):
+    """دریافت کاربران برتر
+    sort_by: "count" = تعداد خرید، "amount" = مبلغ کل
+    """
+    conn = _get_conn()
+    c = conn.cursor()
+
+    if sort_by == "amount":
+        c.execute("""
+            SELECT user_id, COUNT(*) as purchase_count, SUM(amount) as total_spent
+            FROM orders
+            GROUP BY user_id
+            ORDER BY total_spent DESC
+            LIMIT ?
+        """, (limit,))
+    else:
+        c.execute("""
+            SELECT user_id, COUNT(*) as purchase_count, SUM(amount) as total_spent
+            FROM orders
+            GROUP BY user_id
+            ORDER BY purchase_count DESC
+            LIMIT ?
+        """, (limit,))
+
+    rows = c.fetchall()
+    conn.close()
+
+    result = []
+    for row in rows:
+        result.append({
+            "user_id": row["user_id"],
+            "purchase_count": row["purchase_count"],
+            "total_spent": row["total_spent"] or 0
+        })
+    return result
+
+
+def get_user_order_history(user_id, limit=20):
+    """دریافت تاریخچه سفارش‌های کاربر"""
+    conn = _get_conn()
+    c = conn.cursor()
+    c.execute("""
+        SELECT id, subscription_name, plan_name, amount, date
+        FROM orders
+        WHERE user_id = ?
+        ORDER BY date DESC
+        LIMIT ?
+    """, (user_id, limit))
+    rows = c.fetchall()
+    conn.close()
+
+    orders = []
+    for row in rows:
+        orders.append({
+            "id": row["id"],
+            "subscription_name": row["subscription_name"],
+            "plan_name": row["plan_name"],
+            "amount": row["amount"],
+            "date": row["date"]
+        })
+    return orders
 
 
 # مقداردهی اولیه دیتابیس هنگام وارد شدن ماژول
