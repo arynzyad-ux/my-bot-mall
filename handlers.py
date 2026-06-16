@@ -2,6 +2,7 @@
 import random
 import config
 import database
+import stock_alert
 import logging
 import asyncio
 import html
@@ -268,13 +269,26 @@ async def admin_broadcast_received(update: Update, context: ContextTypes.DEFAULT
 async def admin_view_stock(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    # جمع‌آوری وضعیت هشدار برای هر انبار
+    def stock_status_icon(count):
+        if count == 0: return "🔴"
+        elif count < stock_alert.LOW_STOCK_THRESHOLD: return "🟡"
+        return "🟢"
+
     text = (
         "📦 <b>موجودی انبارها و ظرفیت فعلی مخازن:</b>\n\n"
-        f"🚀 انبار ۲۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_20)}</code> کانفیگ\n"
-        f"🚀 انبار ۷۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_70)}</code> کانفیگ\n"
-        f"🚀 انبار ۱۰۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_100)}</code> کانفیگ\n"
-        f"🔐 مخزن مرکزی اکسپرس: <code>{len(config.EXPRESS_CENTRAL_STORAGE)}</code> اکانت\n\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_10))} انبار ۱۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_10)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_15))} انبار ۱۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_15)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_20))} انبار ۲۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_20)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_25))} انبار ۲۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_25)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_30))} انبار ۳۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_30)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_70))} انبار ۷۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_70)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_100))} انبار ۱۰۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_100)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.EXPRESS_CENTRAL_STORAGE))} مخزن مرکزی اکسپرس: <code>{len(config.EXPRESS_CENTRAL_STORAGE)}</code> اکانت\n\n"
         f"⏳ <b>صف‌های انتظار:</b>\n"
+        f"◽ صف ۱۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_10gb'])}</code> نفر | صف ۱۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_15gb'])}</code> نفر\n"
+        f"◽ صف ۲۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_20gb'])}</code> نفر | صف ۲۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_25gb'])}</code> نفر\n"
+        f"◽ صف ۳۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_30gb'])}</code> نفر\n"
         f"◽ صف ۷۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_70gb'])}</code> نفر | صف ۱۰۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_100gb'])}</code> نفر\n"
         f"◽ صف اکسپرس تک کاربره: <code>{len(config.WAITING_QUEUE['ex_1user'])}</code> نفر | دو کاربره: <code>{len(config.WAITING_QUEUE['ex_2user'])}</code> نفر"
     )
@@ -285,8 +299,11 @@ async def admin_add_stock_menu(update: Update, context: ContextTypes.DEFAULT_TYP
     await query.answer()
     text = "📥 <b>بخش شارژ هوشمند انبار ربات</b>\n\nلطفاً انتخاب کنید قصد دارید به کدام انبار کالا یا کانفیگ جدید اضافه کنید:"
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20"), InlineKeyboardButton("🚀 شارژ ۷۰ گیگ V2ray", callback_data="add_stock_v2_70")],
-        [InlineKeyboardButton("🚀 شارژ ۱۰۰ گیگ V2ray", callback_data="add_stock_v2_100"), InlineKeyboardButton("🔐 شارژ مخزن اکسپرس", callback_data="add_stock_express")],
+        [InlineKeyboardButton("🚀 شارژ ۱۰ گیگ V2ray", callback_data="add_stock_v2_10"), InlineKeyboardButton("🚀 شارژ ۱۵ گیگ V2ray", callback_data="add_stock_v2_15")],
+        [InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20"), InlineKeyboardButton("🚀 شارژ ۲۵ گیگ V2ray", callback_data="add_stock_v2_25")],
+        [InlineKeyboardButton("🚀 شارژ ۳۰ گیگ V2ray", callback_data="add_stock_v2_30"), InlineKeyboardButton("🚀 شارژ ۷۰ گیگ V2ray", callback_data="add_stock_v2_70")],
+        [InlineKeyboardButton("🚀 شارژ ۱۰۰ گیگ V2ray", callback_data="add_stock_v2_100")],
+        [InlineKeyboardButton("🔐 شارژ مخزن اکسپرس", callback_data="add_stock_express")],
         [InlineKeyboardButton("🔙 بازگشت به پنل مدیریت", callback_data="admin_back")]
     ])
     await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
@@ -297,7 +314,16 @@ async def admin_add_stock_select(update: Update, context: ContextTypes.DEFAULT_T
     await query.answer()
     stock_type = query.data.replace("add_stock_", "")
     context.user_data["selected_stock_type"] = stock_type
-    names_dict = {"v2_20": "🚀 انبار ۲۰ گیگابایت V2ray", "v2_70": "🚀 انبار ۷۰ گیگابایت V2ray", "v2_100": "🚀 انبار ۱۰۰ گیگابایت V2ray", "express": "🔐 مخزن مرکزی اکانت‌های اکسپرس"}
+    names_dict = {
+        "v2_10": "🚀 انبار ۱۰ گیگابایت V2ray",
+        "v2_15": "🚀 انبار ۱۵ گیگابایت V2ray",
+        "v2_20": "🚀 انبار ۲۰ گیگابایت V2ray",
+        "v2_25": "🚀 انبار ۲۵ گیگابایت V2ray",
+        "v2_30": "🚀 انبار ۳۰ گیگابایت V2ray",
+        "v2_70": "🚀 انبار ۷۰ گیگابایت V2ray",
+        "v2_100": "🚀 انبار ۱۰۰ گیگابایت V2ray",
+        "express": "🔐 مخزن مرکزی اکانت‌های اکسپرس",
+    }
     text = f"✍️ <b>شما مخزن زیر را انتخاب کردید:</b>\n📍 {names_dict.get(stock_type)}\n\n"
     if stock_type == "express":
         text += "⚠️ <b>نکته بسیار مهم:</b> لطفاً اکانت را دقیقاً به فرمت <code>Username:Password</code> ارسال کنید تا تفکیک شود."
@@ -309,20 +335,25 @@ async def admin_add_stock_select(update: Update, context: ContextTypes.DEFAULT_T
 async def admin_add_stock_save(update: Update, context: ContextTypes.DEFAULT_TYPE):
     content = update.message.text.strip()
     stock_type = context.user_data.get("selected_stock_type")
-    if stock_type == "v2_20":
-        config.V2RAY_STORAGE_20.append(content)
+
+    stock_save_map = {
+        "v2_10":  (config.V2RAY_STORAGE_10,  "۱۰ گیگ",  "v2_10gb"),
+        "v2_15":  (config.V2RAY_STORAGE_15,  "۱۵ گیگ",  "v2_15gb"),
+        "v2_20":  (config.V2RAY_STORAGE_20,  "۲۰ گیگ",  "v2_20gb"),
+        "v2_25":  (config.V2RAY_STORAGE_25,  "۲۵ گیگ",  "v2_25gb"),
+        "v2_30":  (config.V2RAY_STORAGE_30,  "۳۰ گیگ",  "v2_30gb"),
+        
+        "v2_70":  (config.V2RAY_STORAGE_70,  "۷۰ گیگ",  "v2_70gb"),
+        "v2_100": (config.V2RAY_STORAGE_100, "۱۰۰ گیگ", "v2_100gb"),
+    }
+
+    if stock_type in stock_save_map:
+        storage, label, queue_key = stock_save_map[stock_type]
+        storage.append(content)
         save_all_storages()
-        await update.message.reply_text(f"✅ به انبار ۲۰ گیگ اضافه شد.\n📦 موجودی: <code>{len(config.V2RAY_STORAGE_20)}</code>", parse_mode="HTML")
-    elif stock_type == "v2_70":
-        config.V2RAY_STORAGE_70.append(content)
-        save_all_storages()
-        await update.message.reply_text(f"✅ به انبار ۷۰ گیگ اضافه شد.\n📦 موجودی: <code>{len(config.V2RAY_STORAGE_70)}</code>", parse_mode="HTML")
-        await check_and_deliver_queue("v2_70gb", context)
-    elif stock_type == "v2_100":
-        config.V2RAY_STORAGE_100.append(content)
-        save_all_storages()
-        await update.message.reply_text(f"✅ به انبار ۱۰۰ گیگ اضافه شد.\n📦 موجودی: <code>{len(config.V2RAY_STORAGE_100)}</code>", parse_mode="HTML")
-        await check_and_deliver_queue("v2_100gb", context)
+        await update.message.reply_text(f"✅ به انبار {label} اضافه شد.\n📦 موجودی: <code>{len(storage)}</code>", parse_mode="HTML")
+        if queue_key:
+            await check_and_deliver_queue(queue_key, context)
     elif stock_type == "express":
         config.EXPRESS_CENTRAL_STORAGE.append(content)
         save_all_storages()
@@ -368,17 +399,25 @@ def format_express_account(acc_string: str, index: int = None) -> str:
     return f"{prefix}📄 <b>اطلاعات اکانت:</b>\n<code>{acc_string}</code>\n"
 
 async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TYPE):
-    if plan_id == "v2_70gb": 
-        storage = config.V2RAY_STORAGE_70
-        plan_name = V2RAY_PLANS[plan_id]["name"]
-    elif plan_id == "v2_100gb": 
-        storage = config.V2RAY_STORAGE_100
-        plan_name = V2RAY_PLANS[plan_id]["name"]
-    elif plan_id in ["ex_1user", "ex_2user"]: 
-        plan_name = EXPRESS_PLANS[plan_id]["name"]
-    else: return
+    v2ray_queue_storage_map = {
+        "v2_10gb": config.V2RAY_STORAGE_10,
+        "v2_15gb": config.V2RAY_STORAGE_15,
+        "v2_20gb": config.V2RAY_STORAGE_20,
+        "v2_25gb": config.V2RAY_STORAGE_25,
+        "v2_30gb": config.V2RAY_STORAGE_30,
+        "v2_70gb": config.V2RAY_STORAGE_70,
+        "v2_100gb": config.V2RAY_STORAGE_100,
+    }
 
-    if plan_id in ["v2_70gb", "v2_100gb"]:
+    if plan_id in v2ray_queue_storage_map:
+        storage = v2ray_queue_storage_map[plan_id]
+        plan_name = V2RAY_PLANS[plan_id]["name"]
+    elif plan_id in ["ex_1user", "ex_2user"]:
+        plan_name = EXPRESS_PLANS[plan_id]["name"]
+    else:
+        return
+
+    if plan_id in v2ray_queue_storage_map:
         while storage and config.WAITING_QUEUE[plan_id]:
             waiting_user_id = config.WAITING_QUEUE[plan_id].pop(0)
             delivered_item = storage.pop(0)
@@ -392,9 +431,11 @@ async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TY
                 u_info = f"<code>{waiting_user_id}</code>"
             database.add_order(waiting_user_id, user_name_identifier, plan_name, 0, f"🔗 <b>لینک اتصال:</b>\n<code>{delivered_item}</code>")
             try:
-                await context.bot.send_message(chat_id=waiting_user_id, text=f"🎉 <b>اشتراک شما آماده شد!</b>\n\n📦 سرویس <b>{plan_name}</b> شارژ شد:\n🆔 <b>نام اشتراک:</b> <code>{user_name_identifier}</code>\n\n🔗 <b>لینک اتصال:</b>\n<code>{delivered_item}</code>", parse_mode="HTML")
-                await context.bot.send_message(chat_id=ADMIN_ID, text=f"✅ <b>تحویل موفقیت‌آمیز از صف انتظار</b>\n\n📦 پلن <b>{plan_name}</b> با موفقیت به کاربر {u_info} (<code>{waiting_user_id}</code>) که در صف بود تحویل داده شد.", parse_mode="HTML")
+                remaining = len(storage)
+                await context.bot.send_message(chat_id=waiting_user_id, text=f"🎉 <b>اشتراک شما آماده شد!</b>\n\n📦 سرویس <b>{plan_name}</b> شارژ شد:\n🆔 <b>نام اشتراک:</b> <code>{user_name_identifier}</code>\n\n🔗 <b>لینک اتصال:</b>\n<code>{delivered_item}</code>\n\n📦 از انبار <b>{plan_name}</b> تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>", parse_mode="HTML")
+                await context.bot.send_message(chat_id=ADMIN_ID, text=f"✅ <b>تحویل موفقیت‌آمیز از صف انتظار</b>\n\n📦 پلن <b>{plan_name}</b> با موفقیت به کاربر {u_info} (<code>{waiting_user_id}</code>) که در صف بود تحویل داده شد.\n📦 موجودی باقی‌مانده در انبار: <code>{remaining}</code>", parse_mode="HTML")
             except: pass
+            await stock_alert.check_and_notify_low_stock(context, trigger_event=f"تحویل از صف {plan_name} به کاربر {u_info}")
     else:
         while config.WAITING_QUEUE[plan_id]:
             needed_count = 1 if plan_id == "ex_1user" else 2
@@ -414,9 +455,11 @@ async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TY
                 formatted_accounts += format_express_account(acc, idx if needed_count > 1 else None) + "\n"
             database.add_order(waiting_user_id, user_name_identifier, plan_name, 0, formatted_accounts)
             try:
-                await context.bot.send_message(chat_id=waiting_user_id, text=f"🎉 <b>اشتراک اکسپرس شما آماده شد!</b>\n\n📦 سرویس <b>{plan_name}</b> شارژ شد:\n🆔 <b>شناسه خرید:</b> <code>{user_name_identifier}</code>\n\n{formatted_accounts}", parse_mode="HTML")
-                await context.bot.send_message(chat_id=ADMIN_ID, text=f"✅ <b>تحویل موفقیت‌آمیز از صف اکسپرس</b>\n\n🔐 اکانت اکسپرس با موفقیت به کاربر {u_info} (<code>{waiting_user_id}</code>) تحویل داده شد.", parse_mode="HTML")
+                remaining = len(config.EXPRESS_CENTRAL_STORAGE)
+                await context.bot.send_message(chat_id=waiting_user_id, text=f"🎉 <b>اشتراک اکسپرس شما آماده شد!</b>\n\n📦 سرویس <b>{plan_name}</b> شارژ شد:\n🆔 <b>شناسه خرید:</b> <code>{user_name_identifier}</code>\n\n{formatted_accounts}\n📦 از مخزن اکسپرس تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>", parse_mode="HTML")
+                await context.bot.send_message(chat_id=ADMIN_ID, text=f"✅ <b>تحویل موفقیت‌آمیز از صف اکسپرس</b>\n\n🔐 اکانت اکسپرس با موفقیت به کاربر {u_info} (<code>{waiting_user_id}</code>) تحویل داده شد.\n📦 موجودی باقی‌مانده در مخزن اکسپرس: <code>{remaining}</code>", parse_mode="HTML")
             except: pass
+            await stock_alert.check_and_notify_low_stock(context, trigger_event=f"تحویل از صف اکسپرس {plan_name} به کاربر {u_info}")
 
 # =====================================================================
 # 👤 منوهای کاربری ربات (User Interface Commands)
@@ -504,7 +547,11 @@ async def v2ray_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = []
     for plan_id, plan_data in V2RAY_PLANS.items():
         final_price = get_discounted_price(plan_data['price'])
-        price_text = f"{final_price:,} تومان" if GLOBAL_DISCOUNT <= 0 else f"<s>{plan_data['price']:,}</s> ➔ {final_price:,} تومان"
+        if GLOBAL_DISCOUNT <= 0:
+            price_text = f"قیمت: {final_price:,} تومان"
+        else:
+            discount_amount = plan_data['price'] - final_price
+            price_text = f"اصلی: {plan_data['price']:,} | تخفیف: {discount_amount:,} | نهایی: {final_price:,}"
         keyboard.append([InlineKeyboardButton(f"{plan_data['name']} | {price_text}", callback_data=f"order_{plan_id}")])
     keyboard.append([InlineKeyboardButton("🔙 بازگشت", callback_data="buy_subscription")])
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
@@ -518,7 +565,11 @@ async def express_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = []
     for plan_id, plan_data in EXPRESS_PLANS.items():
         final_price = get_discounted_price(plan_data['price'])
-        price_text = f"{final_price:,} تومان" if GLOBAL_DISCOUNT <= 0 else f"<s>{plan_data['price']:,}</s> ➔ {final_price:,} تومان"
+        if GLOBAL_DISCOUNT <= 0:
+            price_text = f"قیمت: {final_price:,} تومان"
+        else:
+            discount_amount = plan_data['price'] - final_price
+            price_text = f"اصلی: {plan_data['price']:,} | تخفیف: {discount_amount:,} | نهایی: {final_price:,}"
         keyboard.append([InlineKeyboardButton(f"{plan_data['name']} | {price_text}", callback_data=f"order_{plan_id}")])
     keyboard.append([InlineKeyboardButton("🔙 بازگشت", callback_data="buy_subscription")])
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
@@ -534,11 +585,25 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_v2ray = plan_id in V2RAY_PLANS
     plan = V2RAY_PLANS.get(plan_id) if is_v2ray else EXPRESS_PLANS.get(plan_id)
     if not plan: return
-    if plan_id == "v2_20gb" and len(config.V2RAY_STORAGE_20) == 0:
-        await query.edit_message_text("⚠️ <b>موجودی انبار پلن ۲۰ گیگ موقتاً تمام شده است.</b>", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="buy_v2ray")]]), parse_mode="HTML")
-        try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🚨 <b>اخطار اتمام انبار!</b>\n\n👤 کاربر: {first_name} ({username}) با آیدی <code>{user_id}</code> قصد خرید <b>{plan['name']}</b> را داشت اما این انبار خالی است!", parse_mode="HTML")
-        except: pass
-        return
+    # بررسی خالی بودن انبار برای همه پلن‌های v2ray
+    if is_v2ray:
+        # special-case: unlimited plan is fulfilled immediately (no storage required)
+        if plan_id == "v2_unlimited":
+            user_name_identifier = generate_account_username(first_name)
+            database.add_order(user_id, user_name_identifier, plan['name'], plan_price, "🔓 اشتراک نامحدود")
+            await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n🔓 اشتراک نامحدود فعال شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
+            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید نامحدود</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان", parse_mode="HTML")
+            except: pass
+            return
+        v2ray_storage_map = {
+            "v2_10gb": config.V2RAY_STORAGE_10,
+            "v2_15gb": config.V2RAY_STORAGE_15,
+            "v2_20gb": config.V2RAY_STORAGE_20,
+            "v2_25gb": config.V2RAY_STORAGE_25,
+            "v2_30gb": config.V2RAY_STORAGE_30,
+            "v2_70gb": config.V2RAY_STORAGE_70,
+            "v2_100gb": config.V2RAY_STORAGE_100,
+        }
     user_balance = database.get_user_balance(user_id)
     plan_price = get_discounted_price(plan["price"])
     if user_balance < plan_price:
@@ -548,30 +613,24 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     database.update_user_balance(user_id, -plan_price)
     new_balance = database.get_user_balance(user_id)
     if is_v2ray:
-        if plan_id == "v2_20gb" and len(config.V2RAY_STORAGE_20) > 0:
-            delivered = config.V2RAY_STORAGE_20.pop(0)
+        storage = v2ray_storage_map.get(plan_id)
+        if storage is not None and len(storage) > 0:
+            delivered = storage.pop(0)
             save_all_storages()
             user_name_identifier = generate_account_username(first_name)
             database.add_order(user_id, user_name_identifier, plan['name'], plan_price, f"🔗 <b>لینک اتصال:</b>\n<code>{delivered}</code>")
-            await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n💵 موجودی: {new_balance:,} تومان\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n<code>{delivered}</code>", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
-            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید جدید</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان", parse_mode="HTML")
+            balance_text = f"💵 موجودی: {new_balance:,} تومان\n" if plan_id == "v2_20gb" else ""
+            remaining = len(storage)
+            await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n{balance_text}🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n<code>{delivered}</code>\n\n📦 از انبار <b>{plan['name']}</b> تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
+            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید جدید</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان\n📦 موجودی باقی‌مانده در انبار: <code>{remaining}</code>", parse_mode="HTML")
             except: pass
+            await stock_alert.check_and_notify_low_stock(context, trigger_event=f"خرید {plan['name']} توسط {first_name}")
         else:
-            storage = config.V2RAY_STORAGE_70 if plan_id == "v2_70gb" else config.V2RAY_STORAGE_100
-            if len(storage) > 0:
-                delivered = storage.pop(0)
-                save_all_storages()
-                user_name_identifier = generate_account_username(first_name)
-                database.add_order(user_id, user_name_identifier, plan['name'], plan_price, f"🔗 <b>لینک:</b>\n<code>{delivered}</code>")
-                await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n<code>{delivered}</code>", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
-                try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید جدید</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان", parse_mode="HTML")
-                except: pass
-            else:
-                config.WAITING_QUEUE[plan_id].append(user_id)
-                save_all_storages()
-                await query.edit_message_text(text=f"💸 مبلغ <code>{plan_price:,}</code> تومان از حساب شما کسر شد.\n\n⏳ شما در <b>صف انتظار</b> پلن <b>{plan['name']}</b> قرار گرفتید.\nبه محض شارژ انبار، اشتراک شما به صورت خودکار تحویل داده خواهد شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
-                try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"⚠️ <b>هشدار کمبود انبار و تشکیل صف!</b>\n\n👤 کاربر: {first_name} ({username})\n📦 پلن: <b>{plan['name']}</b>\n📥 کاربر وارد صف انتظار شد.", parse_mode="HTML")
-                except: pass
+            config.WAITING_QUEUE[plan_id].append(user_id)
+            save_all_storages()
+            await query.edit_message_text(text=f"💸 مبلغ <code>{plan_price:,}</code> تومان از حساب شما کسر شد.\n\n⏳ شما در <b>صف انتظار</b> پلن <b>{plan['name']}</b> قرار گرفتید.\nبه محض شارژ انبار، اشتراک شما به صورت خودکار تحویل داده خواهد شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
+            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"⚠️ <b>هشدار کمبود انبار و تشکیل صف!</b>\n\n👤 کاربر: {first_name} ({username})\n📦 پلن: <b>{plan['name']}</b>\n📥 کاربر وارد صف انتظار شد.", parse_mode="HTML")
+            except: pass
     else:
         needed_count = 1 if plan_id == "ex_1user" else 2
         if len(config.EXPRESS_CENTRAL_STORAGE) >= needed_count:
@@ -581,9 +640,11 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
             formatted_accounts = ""
             for idx, acc in enumerate(items_to_deliver, 1): formatted_accounts += format_express_account(acc, idx if needed_count > 1 else None) + "\n"
             database.add_order(user_id, user_name_identifier, plan['name'], plan_price, formatted_accounts)
-            await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n{formatted_accounts}", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
-            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید جدید Express</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان", parse_mode="HTML")
+            remaining = len(config.EXPRESS_CENTRAL_STORAGE)
+            await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n{formatted_accounts}\n📦 از مخزن اکسپرس تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
+            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید جدید Express</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان\n📦 موجودی باقی‌مانده در مخزن اکسپرس: <code>{remaining}</code>", parse_mode="HTML")
             except: pass
+            await stock_alert.check_and_notify_low_stock(context, trigger_event=f"خرید {plan['name']} توسط {first_name}")
         else:
             config.WAITING_QUEUE[plan_id].append(user_id)
             save_all_storages()

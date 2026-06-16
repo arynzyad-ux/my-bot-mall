@@ -36,11 +36,20 @@ BOT_USERNAME = "vpn_mall_bot"
 
 # 📦 تعرفه و مخازن پلن‌های V2ray
 V2RAY_PLANS = {
-    "v2_20gb": {"name": "🚀 پلن ۲۰ گیگابایت", "price": 270000},
-    "v2_70gb": {"name": "🚀 پلن ۷۰ گیگابایت", "price": 650000},
-    "v2_100gb": {"name": "🚀 پلن ۱۰۰ گیگابایت", "price": 800000}
+    "v2_10gb":  {"name": "🚀 پلن ۱۰ گیگابایت",  "price": 100000},
+    "v2_15gb":  {"name": "🚀 پلن ۱۵ گیگابایت",  "price": 147000},
+    "v2_20gb":  {"name": "🚀 پلن ۲۰ گیگابایت",  "price": 191000},
+    "v2_25gb":  {"name": "🚀 پلن ۲۵ گیگابایت",  "price": 233000},
+    "v2_30gb":  {"name": "🚀 پلن ۳۰ گیگابایت",  "price": 273000},
+    "v2_70gb":  {"name": "🚀 پلن ۷۰ گیگابایت",  "price": 513000},
+    "v2_100gb": {"name": "🚀 پلن ۱۰۰ گیگابایت", "price": 600000},
+    "v2_unlimited": {"name": "🚀 پلن نامحدود", "price": 700000}
 }
+V2RAY_STORAGE_10 = []
+V2RAY_STORAGE_15 = []
 V2RAY_STORAGE_20 = []
+V2RAY_STORAGE_25 = []
+V2RAY_STORAGE_30 = []
 V2RAY_STORAGE_70 = []
 V2RAY_STORAGE_100 = []
 
@@ -53,6 +62,11 @@ EXPRESS_CENTRAL_STORAGE = []
 
 # ⏳ صف‌های انتظار در صورت اتمام موجودی انبارها
 WAITING_QUEUE = {
+    "v2_10gb": [],
+    "v2_15gb": [],
+    "v2_20gb": [],
+    "v2_25gb": [],
+    "v2_30gb": [],
     "v2_70gb": [],
     "v2_100gb": [],
     "ex_1user": [],
