@@ -14,7 +14,7 @@ from config import (
     BLACKLISTED_USERS, toggle_blacklist_user, REFERRER_REWARD, REFERREE_REWARD, BOT_USERNAME,
     ADMIN_GET_USER, ADMIN_GET_BALANCE_CHNG, ADMIN_GET_DISCOUNT, ADMIN_GET_BROADCAST,
     ADMIN_GET_BLOCK_ID, ADMIN_GET_UNBLOCK_ID, ADMIN_CHOOSE_STOCK_TYPE, ADMIN_GET_STOCK_CONTENT,
-    SUPPORT_MESSAGE
+    SUPPORT_MESSAGE, ADMIN_MANAGE_STORAGE_MENU, ADMIN_VIEW_STORAGE_ITEMS, ADMIN_ADD_STORAGE_ITEM, ADMIN_REMOVE_STORAGE_ITEM, ADMIN_EDIT_STORAGE_ITEM
 )
 
 def is_admin(user_id: int) -> bool:
@@ -123,6 +123,7 @@ async def admin_menu_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("🚫 بلاک کردن کاربر", callback_data="admin_block_user"), InlineKeyboardButton("🟢 آن‌بلاک کردن کاربر", callback_data="admin_unblock_user")],
         [InlineKeyboardButton("📢 ارسال پیام همگانی", callback_data="admin_broadcast"), InlineKeyboardButton("📦 موجودی و آمار انبار", callback_data="admin_view_stock")],
         [InlineKeyboardButton("⭐ کاربران برتر و پاداش", callback_data="admin_top_users"), InlineKeyboardButton("📥 شارژ انبار", callback_data="admin_add_stock_menu")],
+        [InlineKeyboardButton("🛠 مدیریت تفصیلی انبارها", callback_data="admin_storage_manager")],
         [InlineKeyboardButton("📊 گزارش پیشرفته ربات (Live)", callback_data="admin_full_report")]
     ])
     if update.message:
@@ -321,20 +322,27 @@ async def admin_view_stock(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = (
         "📦 <b>موجودی انبارها و ظرفیت فعلی مخازن:</b>\n\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_5))} انبار ۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_5)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_10))} انبار ۱۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_10)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_15))} انبار ۱۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_15)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_20))} انبار ۲۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_20)}</code> کانفیگ\n"
-        # 25 گیگ حذف شد
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_25))} انبار ۲۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_25)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_30))} انبار ۳۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_30)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_40))} انبار ۴۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_40)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_50))} انبار ۵۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_50)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_60))} انبار ۶۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_60)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_70))} انبار ۷۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_70)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_80))} انبار ۸۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_80)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_90))} انبار ۹۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_90)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_100))} انبار ۱۰۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_100)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.EXPRESS_CENTRAL_STORAGE))} مخزن مرکزی اکسپرس: <code>{len(config.EXPRESS_CENTRAL_STORAGE)}</code> اکانت\n\n"
         f"⏳ <b>صف‌های انتظار:</b>\n"
-        f"◽ صف ۱۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_10gb'])}</code> نفر | صف ۱۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_15gb'])}</code> نفر\n"
-        f"◽ صف ۲۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_20gb'])}</code> نفر\n"
-        f"◽ صف ۳۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_30gb'])}</code> نفر\n"
-        f"◽ صف ۷۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_70gb'])}</code> نفر | صف ۱۰۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_100gb'])}</code> نفر\n"
-        f"◽ صف اکسپرس تک کاربره: <code>{len(config.WAITING_QUEUE['ex_1user'])}</code> نفر | دو کاربره: <code>{len(config.WAITING_QUEUE['ex_2user'])}</code> نفر"
+        f"◽ صف ۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_5gb'])}</code> | صف ۱۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_10gb'])}</code> | صف ۱۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_15gb'])}</code>\n"
+        f"◽ صف ۲۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_20gb'])}</code> | صف ۲۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_25gb'])}</code> | صف ۳۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_30gb'])}</code>\n"
+        f"◽ صف ۴۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_40gb'])}</code> | صف ۵۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_50gb'])}</code> | صف ۶۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_60gb'])}</code>\n"
+        f"◽ صف ۷۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_70gb'])}</code> | صف ۸۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_80gb'])}</code> | صف ۹۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_90gb'])}</code>\n"
+        f"◽ صف ۱۰۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_100gb'])}</code>\n"
+        f"◽ صف اکسپرس تک کاربره: <code>{len(config.WAITING_QUEUE['ex_1user'])}</code> | دو کاربره: <code>{len(config.WAITING_QUEUE['ex_2user'])}</code>"
     )
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="admin_back")]]), parse_mode="HTML")
 
@@ -343,9 +351,12 @@ async def admin_add_stock_menu(update: Update, context: ContextTypes.DEFAULT_TYP
     await query.answer()
     text = "📥 <b>بخش شارژ هوشمند انبار ربات</b>\n\nلطفاً انتخاب کنید قصد دارید به کدام انبار کالا یا کانفیگ جدید اضافه کنید:"
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🚀 شارژ ۱۰ گیگ V2ray", callback_data="add_stock_v2_10"), InlineKeyboardButton("🚀 شارژ ۱۵ گیگ V2ray", callback_data="add_stock_v2_15")],
-        [InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20")],
-        [InlineKeyboardButton("🚀 شارژ ۳۰ گیگ V2ray", callback_data="add_stock_v2_30"), InlineKeyboardButton("🚀 شارژ ۷۰ گیگ V2ray", callback_data="add_stock_v2_70")],
+        [InlineKeyboardButton("🚀 شارژ ۵ گیگ V2ray", callback_data="add_stock_v2_5"), InlineKeyboardButton("🚀 شارژ ۱۰ گیگ V2ray", callback_data="add_stock_v2_10")],
+        [InlineKeyboardButton("🚀 شارژ ۱۵ گیگ V2ray", callback_data="add_stock_v2_15"), InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20")],
+        [InlineKeyboardButton("🚀 شارژ ۲۵ گیگ V2ray", callback_data="add_stock_v2_25"), InlineKeyboardButton("🚀 شارژ ۳۰ گیگ V2ray", callback_data="add_stock_v2_30")],
+        [InlineKeyboardButton("🚀 شارژ ۴۰ گیگ V2ray", callback_data="add_stock_v2_40"), InlineKeyboardButton("🚀 شارژ ۵۰ گیگ V2ray", callback_data="add_stock_v2_50")],
+        [InlineKeyboardButton("🚀 شارژ ۶۰ گیگ V2ray", callback_data="add_stock_v2_60"), InlineKeyboardButton("🚀 شارژ ۷۰ گیگ V2ray", callback_data="add_stock_v2_70")],
+        [InlineKeyboardButton("🚀 شارژ ۸۰ گیگ V2ray", callback_data="add_stock_v2_80"), InlineKeyboardButton("🚀 شارژ ۹۰ گیگ V2ray", callback_data="add_stock_v2_90")],
         [InlineKeyboardButton("🚀 شارژ ۱۰۰ گیگ V2ray", callback_data="add_stock_v2_100")],
         [InlineKeyboardButton("🔐 شارژ مخزن اکسپرس", callback_data="add_stock_express")],
         [InlineKeyboardButton("🔙 بازگشت به پنل مدیریت", callback_data="admin_back")]
@@ -359,12 +370,18 @@ async def admin_add_stock_select(update: Update, context: ContextTypes.DEFAULT_T
     stock_type = query.data.replace("add_stock_", "")
     context.user_data["selected_stock_type"] = stock_type
     names_dict = {
+        "v2_5": "🚀 انبار ۵ گیگابایت V2ray",
         "v2_10": "🚀 انبار ۱۰ گیگابایت V2ray",
         "v2_15": "🚀 انبار ۱۵ گیگابایت V2ray",
         "v2_20": "🚀 انبار ۲۰ گیگابایت V2ray",
-        # 25 گیگ حذف شد
+        "v2_25": "🚀 انبار ۲۵ گیگابایت V2ray",
         "v2_30": "🚀 انبار ۳۰ گیگابایت V2ray",
+        "v2_40": "🚀 انبار ۴۰ گیگابایت V2ray",
+        "v2_50": "🚀 انبار ۵۰ گیگابایت V2ray",
+        "v2_60": "🚀 انبار ۶۰ گیگابایت V2ray",
         "v2_70": "🚀 انبار ۷۰ گیگابایت V2ray",
+        "v2_80": "🚀 انبار ۸۰ گیگابایت V2ray",
+        "v2_90": "🚀 انبار ۹۰ گیگابایت V2ray",
         "v2_100": "🚀 انبار ۱۰۰ گیگابایت V2ray",
         "express": "🔐 مخزن مرکزی اکانت‌های اکسپرس",
     }
@@ -381,13 +398,18 @@ async def admin_add_stock_save(update: Update, context: ContextTypes.DEFAULT_TYP
     stock_type = context.user_data.get("selected_stock_type")
 
     stock_save_map = {
+        "v2_5":   (config.V2RAY_STORAGE_5,   "۵ گیگ",   "v2_5gb"),
         "v2_10":  (config.V2RAY_STORAGE_10,  "۱۰ گیگ",  "v2_10gb"),
         "v2_15":  (config.V2RAY_STORAGE_15,  "۱۵ گیگ",  "v2_15gb"),
         "v2_20":  (config.V2RAY_STORAGE_20,  "۲۰ گیگ",  "v2_20gb"),
-        # 25 گیگ حذف شد
+        "v2_25":  (config.V2RAY_STORAGE_25,  "۲۵ گیگ",  "v2_25gb"),
         "v2_30":  (config.V2RAY_STORAGE_30,  "۳۰ گیگ",  "v2_30gb"),
-        
+        "v2_40":  (config.V2RAY_STORAGE_40,  "۴۰ گیگ",  "v2_40gb"),
+        "v2_50":  (config.V2RAY_STORAGE_50,  "۵۰ گیگ",  "v2_50gb"),
+        "v2_60":  (config.V2RAY_STORAGE_60,  "۶۰ گیگ",  "v2_60gb"),
         "v2_70":  (config.V2RAY_STORAGE_70,  "۷۰ گیگ",  "v2_70gb"),
+        "v2_80":  (config.V2RAY_STORAGE_80,  "۸۰ گیگ",  "v2_80gb"),
+        "v2_90":  (config.V2RAY_STORAGE_90,  "۹۰ گیگ",  "v2_90gb"),
         "v2_100": (config.V2RAY_STORAGE_100, "۱۰۰ گیگ", "v2_100gb"),
     }
 
@@ -417,7 +439,7 @@ async def admin_full_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if users and isinstance(users, dict):
         for uid in users.keys():
             bal = database.get_user_balance(int(uid))
-            if bal > 0: 
+            if bal > 0:
                 total_balance += bal
                 users_with_balance += 1
     text = (
@@ -428,6 +450,438 @@ async def admin_full_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"🚫 <b>تعداد کاربران مسدود شده (لیست سیاه):</b> <code>{len(config.BLACKLISTED_USERS)}</code> نفر"
     )
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="admin_back")]]), parse_mode="HTML")
+
+# =====================================================================
+# 🛠 مدیریت تفصیلی انبارها (Detailed Storage Management)
+# =====================================================================
+
+async def admin_storage_manager(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    text = "🛠 <b>مدیریت تفصیلی انبارها</b>\n\nلطفاً انبار مورد نظر را انتخاب کنید:"
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(f"🚀 V2ray ۵ گیگ ({len(config.V2RAY_STORAGE_5)})", callback_data="manage_storage_v2_5")],
+        [InlineKeyboardButton(f"🚀 V2ray ۱۰ گیگ ({len(config.V2RAY_STORAGE_10)})", callback_data="manage_storage_v2_10")],
+        [InlineKeyboardButton(f"🚀 V2ray ۱۵ گیگ ({len(config.V2RAY_STORAGE_15)})", callback_data="manage_storage_v2_15")],
+        [InlineKeyboardButton(f"🚀 V2ray ۲۰ گیگ ({len(config.V2RAY_STORAGE_20)})", callback_data="manage_storage_v2_20")],
+        [InlineKeyboardButton(f"🚀 V2ray ۲۵ گیگ ({len(config.V2RAY_STORAGE_25)})", callback_data="manage_storage_v2_25")],
+        [InlineKeyboardButton(f"🚀 V2ray ۳۰ گیگ ({len(config.V2RAY_STORAGE_30)})", callback_data="manage_storage_v2_30")],
+        [InlineKeyboardButton(f"🚀 V2ray ۴۰ گیگ ({len(config.V2RAY_STORAGE_40)})", callback_data="manage_storage_v2_40")],
+        [InlineKeyboardButton(f"🚀 V2ray ۵۰ گیگ ({len(config.V2RAY_STORAGE_50)})", callback_data="manage_storage_v2_50")],
+        [InlineKeyboardButton(f"🚀 V2ray ۶۰ گیگ ({len(config.V2RAY_STORAGE_60)})", callback_data="manage_storage_v2_60")],
+        [InlineKeyboardButton(f"🚀 V2ray ۷۰ گیگ ({len(config.V2RAY_STORAGE_70)})", callback_data="manage_storage_v2_70")],
+        [InlineKeyboardButton(f"🚀 V2ray ۸۰ گیگ ({len(config.V2RAY_STORAGE_80)})", callback_data="manage_storage_v2_80")],
+        [InlineKeyboardButton(f"🚀 V2ray ۹۰ گیگ ({len(config.V2RAY_STORAGE_90)})", callback_data="manage_storage_v2_90")],
+        [InlineKeyboardButton(f"🚀 V2ray ۱۰۰ گیگ ({len(config.V2RAY_STORAGE_100)})", callback_data="manage_storage_v2_100")],
+        [InlineKeyboardButton(f"🔐 اکسپرس ({len(config.EXPRESS_CENTRAL_STORAGE)})", callback_data="manage_storage_express")],
+        [InlineKeyboardButton("🔙 بازگشت", callback_data="admin_back")]
+    ])
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+    return ADMIN_MANAGE_STORAGE_MENU
+
+async def admin_storage_select(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    storage_type = query.data.replace("manage_storage_", "")
+    context.user_data["selected_storage"] = storage_type
+
+    storage_map = {
+        "v2_5": config.V2RAY_STORAGE_5,
+        "v2_10": config.V2RAY_STORAGE_10,
+        "v2_15": config.V2RAY_STORAGE_15,
+        "v2_20": config.V2RAY_STORAGE_20,
+        "v2_25": config.V2RAY_STORAGE_25,
+        "v2_30": config.V2RAY_STORAGE_30,
+        "v2_40": config.V2RAY_STORAGE_40,
+        "v2_50": config.V2RAY_STORAGE_50,
+        "v2_60": config.V2RAY_STORAGE_60,
+        "v2_70": config.V2RAY_STORAGE_70,
+        "v2_80": config.V2RAY_STORAGE_80,
+        "v2_90": config.V2RAY_STORAGE_90,
+        "v2_100": config.V2RAY_STORAGE_100,
+        "express": config.EXPRESS_CENTRAL_STORAGE,
+    }
+
+    names_map = {
+        "v2_5": "🚀 V2ray ۵ گیگابایت",
+        "v2_10": "🚀 V2ray ۱۰ گیگابایت",
+        "v2_15": "🚀 V2ray ۱۵ گیگابایت",
+        "v2_20": "🚀 V2ray ۲۰ گیگابایت",
+        "v2_25": "🚀 V2ray ۲۵ گیگابایت",
+        "v2_30": "🚀 V2ray ۳۰ گیگابایت",
+        "v2_40": "🚀 V2ray ۴۰ گیگابایت",
+        "v2_50": "🚀 V2ray ۵۰ گیگابایت",
+        "v2_60": "🚀 V2ray ۶۰ گیگابایت",
+        "v2_70": "🚀 V2ray ۷۰ گیگابایت",
+        "v2_80": "🚀 V2ray ۸۰ گیگابایت",
+        "v2_90": "🚀 V2ray ۹۰ گیگابایت",
+        "v2_100": "🚀 V2ray ۱۰۰ گیگابایت",
+        "express": "🔐 اکانت‌های اکسپرس",
+    }
+
+    storage = storage_map.get(storage_type, [])
+    text = f"📍 <b>انبار انتخاب‌شده:</b> {names_map.get(storage_type)}\n\n"
+    text += f"📊 <b>تعداد آیتم‌ها:</b> <code>{len(storage)}</code>\n\n"
+    text += "👇 <b>عملیات موردنظر را انتخاب کنید:</b>"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("📋 مشاهده آیتم‌ها", callback_data=f"view_storage_{storage_type}")],
+        [InlineKeyboardButton("➕ اضافه کردن آیتم", callback_data=f"add_storage_item_{storage_type}")],
+        [InlineKeyboardButton("➖ حذف آیتم", callback_data=f"remove_storage_item_{storage_type}")],
+        [InlineKeyboardButton("🗑 خالی کردن کل انبار", callback_data=f"clear_storage_{storage_type}")],
+        [InlineKeyboardButton("🔙 بازگشت", callback_data="admin_storage_manager")]
+    ])
+
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+    return ADMIN_MANAGE_STORAGE_MENU
+
+async def admin_view_storage_items(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    storage_type = query.data.replace("view_storage_", "")
+
+    storage_map = {
+        "v2_5": config.V2RAY_STORAGE_5,
+        "v2_10": config.V2RAY_STORAGE_10,
+        "v2_15": config.V2RAY_STORAGE_15,
+        "v2_20": config.V2RAY_STORAGE_20,
+        "v2_25": config.V2RAY_STORAGE_25,
+        "v2_30": config.V2RAY_STORAGE_30,
+        "v2_40": config.V2RAY_STORAGE_40,
+        "v2_50": config.V2RAY_STORAGE_50,
+        "v2_60": config.V2RAY_STORAGE_60,
+        "v2_70": config.V2RAY_STORAGE_70,
+        "v2_80": config.V2RAY_STORAGE_80,
+        "v2_90": config.V2RAY_STORAGE_90,
+        "v2_100": config.V2RAY_STORAGE_100,
+        "express": config.EXPRESS_CENTRAL_STORAGE,
+    }
+
+    names_map = {
+        "v2_5": "V2ray ۵ گیگابایت",
+        "v2_10": "V2ray ۱۰ گیگابایت",
+        "v2_15": "V2ray ۱۵ گیگابایت",
+        "v2_20": "V2ray ۲۰ گیگابایت",
+        "v2_25": "V2ray ۲۵ گیگابایت",
+        "v2_30": "V2ray ۳۰ گیگابایت",
+        "v2_40": "V2ray ۴۰ گیگابایت",
+        "v2_50": "V2ray ۵۰ گیگابایت",
+        "v2_60": "V2ray ۶۰ گیگابایت",
+        "v2_70": "V2ray ۷۰ گیگابایت",
+        "v2_80": "V2ray ۸۰ گیگابایت",
+        "v2_90": "V2ray ۹۰ گیگابایت",
+        "v2_100": "V2ray ۱۰۰ گیگابایت",
+        "express": "اکانت‌های اکسپرس",
+    }
+
+    storage = storage_map.get(storage_type, [])
+
+    if not storage:
+        text = f"📋 <b>لیست آیتم‌های {names_map.get(storage_type)}</b>\n\n⚠️ انبار خالی است."
+    else:
+        text = f"📋 <b>لیست آیتم‌های {names_map.get(storage_type)}</b>\n\n<b>تعداد کل:</b> {len(storage)}\n\n"
+        for idx, item in enumerate(storage[:50], 1):
+            if len(item) > 60:
+                preview = item[:57] + "..."
+            else:
+                preview = item
+            text += f"{idx}. <code>{preview}</code>\n"
+        if len(storage) > 50:
+            text += f"\n... و {len(storage) - 50} آیتم دیگر"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔙 بازگشت", callback_data=f"manage_storage_{storage_type}")]
+    ])
+
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+
+async def admin_add_storage_item_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    storage_type = query.data.replace("add_storage_item_", "")
+    context.user_data["selected_storage"] = storage_type
+
+    names_map = {
+        "v2_5": "V2ray ۵ گیگابایت",
+        "v2_10": "V2ray ۱۰ گیگابایت",
+        "v2_15": "V2ray ۱۵ گیگابایت",
+        "v2_20": "V2ray ۲۰ گیگابایت",
+        "v2_25": "V2ray ۲۵ گیگابایت",
+        "v2_30": "V2ray ۳۰ گیگابایت",
+        "v2_40": "V2ray ۴۰ گیگابایت",
+        "v2_50": "V2ray ۵۰ گیگابایت",
+        "v2_60": "V2ray ۶۰ گیگابایت",
+        "v2_70": "V2ray ۷۰ گیگابایت",
+        "v2_80": "V2ray ۸۰ گیگابایت",
+        "v2_90": "V2ray ۹۰ گیگابایت",
+        "v2_100": "V2ray ۱۰۰ گیگابایت",
+        "express": "اکانت‌های اکسپرس",
+    }
+
+    text = f"➕ <b>اضافه کردن آیتم به {names_map.get(storage_type)}</b>\n\n"
+    if storage_type == "express":
+        text += "⚠️ لطفاً اکانت را به فرمت <code>Username:Password</code> ارسال کنید:"
+    else:
+        text += "لطفاً لینک یا متن اتصال را ارسال کنید:"
+
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 انصراف", callback_data=f"manage_storage_{storage_type}")]]), parse_mode="HTML")
+    return ADMIN_ADD_STORAGE_ITEM
+
+async def admin_add_storage_item_save(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    content = update.message.text.strip()
+    storage_type = context.user_data.get("selected_storage")
+
+    storage_map = {
+        "v2_5": config.V2RAY_STORAGE_5,
+        "v2_10": config.V2RAY_STORAGE_10,
+        "v2_15": config.V2RAY_STORAGE_15,
+        "v2_20": config.V2RAY_STORAGE_20,
+        "v2_25": config.V2RAY_STORAGE_25,
+        "v2_30": config.V2RAY_STORAGE_30,
+        "v2_40": config.V2RAY_STORAGE_40,
+        "v2_50": config.V2RAY_STORAGE_50,
+        "v2_60": config.V2RAY_STORAGE_60,
+        "v2_70": config.V2RAY_STORAGE_70,
+        "v2_80": config.V2RAY_STORAGE_80,
+        "v2_90": config.V2RAY_STORAGE_90,
+        "v2_100": config.V2RAY_STORAGE_100,
+        "express": config.EXPRESS_CENTRAL_STORAGE,
+    }
+
+    names_map = {
+        "v2_5": "V2ray ۵ گیگابایت",
+        "v2_10": "V2ray ۱۰ گیگابایت",
+        "v2_15": "V2ray ۱۵ گیگابایت",
+        "v2_20": "V2ray ۲۰ گیگابایت",
+        "v2_25": "V2ray ۲۵ گیگابایت",
+        "v2_30": "V2ray ۳۰ گیگابایت",
+        "v2_40": "V2ray ۴۰ گیگابایت",
+        "v2_50": "V2ray ۵۰ گیگابایت",
+        "v2_60": "V2ray ۶۰ گیگابایت",
+        "v2_70": "V2ray ۷۰ گیگابایت",
+        "v2_80": "V2ray ۸۰ گیگابایت",
+        "v2_90": "V2ray ۹۰ گیگابایت",
+        "v2_100": "V2ray ۱۰۰ گیگابایت",
+        "express": "اکانت‌های اکسپرس",
+    }
+
+    storage = storage_map.get(storage_type)
+    if storage is not None:
+        storage.append(content)
+        save_all_storages()
+        await update.message.reply_text(f"✅ <b>آیتم با موفقیت اضافه شد!</b>\n\nانبار {names_map.get(storage_type)}\n📊 تعداد فعلی: <code>{len(storage)}</code>", parse_mode="HTML")
+    else:
+        await update.message.reply_text("❌ خطای نامشخص", parse_mode="HTML")
+
+    return await admin_cancel(update, context)
+
+async def admin_remove_storage_item_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    storage_type = query.data.replace("remove_storage_item_", "")
+    context.user_data["selected_storage"] = storage_type
+
+    storage_map = {
+        "v2_5": config.V2RAY_STORAGE_5,
+        "v2_10": config.V2RAY_STORAGE_10,
+        "v2_15": config.V2RAY_STORAGE_15,
+        "v2_20": config.V2RAY_STORAGE_20,
+        "v2_25": config.V2RAY_STORAGE_25,
+        "v2_30": config.V2RAY_STORAGE_30,
+        "v2_40": config.V2RAY_STORAGE_40,
+        "v2_50": config.V2RAY_STORAGE_50,
+        "v2_60": config.V2RAY_STORAGE_60,
+        "v2_70": config.V2RAY_STORAGE_70,
+        "v2_80": config.V2RAY_STORAGE_80,
+        "v2_90": config.V2RAY_STORAGE_90,
+        "v2_100": config.V2RAY_STORAGE_100,
+        "express": config.EXPRESS_CENTRAL_STORAGE,
+    }
+
+    names_map = {
+        "v2_5": "V2ray ۵ گیگابایت",
+        "v2_10": "V2ray ۱۰ گیگابایت",
+        "v2_15": "V2ray ۱۵ گیگابایت",
+        "v2_20": "V2ray ۲۰ گیگابایت",
+        "v2_25": "V2ray ۲۵ گیگابایت",
+        "v2_30": "V2ray ۳۰ گیگابایت",
+        "v2_40": "V2ray ۴۰ گیگابایت",
+        "v2_50": "V2ray ۵۰ گیگابایت",
+        "v2_60": "V2ray ۶۰ گیگابایت",
+        "v2_70": "V2ray ۷۰ گیگابایت",
+        "v2_80": "V2ray ۸۰ گیگابایت",
+        "v2_90": "V2ray ۹۰ گیگابایت",
+        "v2_100": "V2ray ۱۰۰ گیگابایت",
+        "express": "اکانت‌های اکسپرس",
+    }
+
+    storage = storage_map.get(storage_type, [])
+    text = f"➖ <b>حذف آیتم از {names_map.get(storage_type)}</b>\n\n"
+    text += f"📊 تعداد کل آیتم‌ها: <code>{len(storage)}</code>\n\n"
+    text += "🔹 <b>شماره آیتم</b> را وارد کنید (مثلاً: 1, 2, 3)\n"
+    text += "🔹 یا برای حذف آخرین آیتم عدد <code>0</code> را ارسال کنید:"
+
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 انصراف", callback_data=f"manage_storage_{storage_type}")]]), parse_mode="HTML")
+    return ADMIN_REMOVE_STORAGE_ITEM
+
+async def admin_remove_storage_item_process(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_input = update.message.text.strip().translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
+
+    if not user_input.isdigit():
+        await update.message.reply_text("❌ فقط عدد وارد کنید:")
+        return ADMIN_REMOVE_STORAGE_ITEM
+
+    storage_type = context.user_data.get("selected_storage")
+    storage_map = {
+        "v2_5": config.V2RAY_STORAGE_5,
+        "v2_10": config.V2RAY_STORAGE_10,
+        "v2_15": config.V2RAY_STORAGE_15,
+        "v2_20": config.V2RAY_STORAGE_20,
+        "v2_25": config.V2RAY_STORAGE_25,
+        "v2_30": config.V2RAY_STORAGE_30,
+        "v2_40": config.V2RAY_STORAGE_40,
+        "v2_50": config.V2RAY_STORAGE_50,
+        "v2_60": config.V2RAY_STORAGE_60,
+        "v2_70": config.V2RAY_STORAGE_70,
+        "v2_80": config.V2RAY_STORAGE_80,
+        "v2_90": config.V2RAY_STORAGE_90,
+        "v2_100": config.V2RAY_STORAGE_100,
+        "express": config.EXPRESS_CENTRAL_STORAGE,
+    }
+
+    names_map = {
+        "v2_5": "V2ray ۵ گیگابایت",
+        "v2_10": "V2ray ۱۰ گیگابایت",
+        "v2_15": "V2ray ۱۵ گیگابایت",
+        "v2_20": "V2ray ۲۰ گیگابایت",
+        "v2_25": "V2ray ۲۵ گیگابایت",
+        "v2_30": "V2ray ۳۰ گیگابایت",
+        "v2_40": "V2ray ۴۰ گیگابایت",
+        "v2_50": "V2ray ۵۰ گیگابایت",
+        "v2_60": "V2ray ۶۰ گیگابایت",
+        "v2_70": "V2ray ۷۰ گیگابایت",
+        "v2_80": "V2ray ۸۰ گیگابایت",
+        "v2_90": "V2ray ۹۰ گیگابایت",
+        "v2_100": "V2ray ۱۰۰ گیگابایت",
+        "express": "اکانت‌های اکسپرس",
+    }
+
+    storage = storage_map.get(storage_type, [])
+    index = int(user_input)
+
+    if index == 0:
+        if storage:
+            removed = storage.pop()
+            save_all_storages()
+            await update.message.reply_text(f"✅ <b>آخرین آیتم حذف شد!</b>\n\nانبار {names_map.get(storage_type)}\n📊 تعداد فعلی: <code>{len(storage)}</code>", parse_mode="HTML")
+        else:
+            await update.message.reply_text("⚠️ انبار خالی است", parse_mode="HTML")
+    else:
+        if 1 <= index <= len(storage):
+            removed = storage.pop(index - 1)
+            save_all_storages()
+            await update.message.reply_text(f"✅ <b>آیتم شماره {index} حذف شد!</b>\n\nانبار {names_map.get(storage_type)}\n📊 تعداد فعلی: <code>{len(storage)}</code>", parse_mode="HTML")
+        else:
+            await update.message.reply_text(f"❌ شماره نامعتبر است. (۱ تا {len(storage)})", parse_mode="HTML")
+            return ADMIN_REMOVE_STORAGE_ITEM
+
+    return await admin_cancel(update, context)
+
+async def admin_clear_storage(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    storage_type = query.data.replace("clear_storage_", "")
+
+    storage_map = {
+        "v2_5": config.V2RAY_STORAGE_5,
+        "v2_10": config.V2RAY_STORAGE_10,
+        "v2_15": config.V2RAY_STORAGE_15,
+        "v2_20": config.V2RAY_STORAGE_20,
+        "v2_25": config.V2RAY_STORAGE_25,
+        "v2_30": config.V2RAY_STORAGE_30,
+        "v2_40": config.V2RAY_STORAGE_40,
+        "v2_50": config.V2RAY_STORAGE_50,
+        "v2_60": config.V2RAY_STORAGE_60,
+        "v2_70": config.V2RAY_STORAGE_70,
+        "v2_80": config.V2RAY_STORAGE_80,
+        "v2_90": config.V2RAY_STORAGE_90,
+        "v2_100": config.V2RAY_STORAGE_100,
+        "express": config.EXPRESS_CENTRAL_STORAGE,
+    }
+
+    names_map = {
+        "v2_5": "V2ray ۵ گیگابایت",
+        "v2_10": "V2ray ۱۰ گیگابایت",
+        "v2_15": "V2ray ۱۵ گیگابایت",
+        "v2_20": "V2ray ۲۰ گیگابایت",
+        "v2_25": "V2ray ۲۵ گیگابایت",
+        "v2_30": "V2ray ۳۰ گیگابایت",
+        "v2_40": "V2ray ۴۰ گیگابایت",
+        "v2_50": "V2ray ۵۰ گیگابایت",
+        "v2_60": "V2ray ۶۰ گیگابایت",
+        "v2_70": "V2ray ۷۰ گیگابایت",
+        "v2_80": "V2ray ۸۰ گیگابایت",
+        "v2_90": "V2ray ۹۰ گیگابایت",
+        "v2_100": "V2ray ۱۰۰ گیگابایت",
+        "express": "اکانت‌های اکسپرس",
+    }
+
+    text = f"🗑 <b>تایید: خالی کردن کل انبار {names_map.get(storage_type)}</b>\n\n"
+    text += f"⚠️ <b>این عملیات غیرقابل‌برگشت است!</b>\n"
+    text += f"📊 تعداد آیتم‌هایی که حذف خواهند شد: <code>{len(storage_map.get(storage_type, []))}</code>"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ تایید و حذف", callback_data=f"confirm_clear_{storage_type}"), InlineKeyboardButton("❌ انصراف", callback_data=f"manage_storage_{storage_type}")]
+    ])
+
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+
+async def admin_confirm_clear_storage(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    storage_type = query.data.replace("confirm_clear_", "")
+
+    storage_map = {
+        "v2_5": config.V2RAY_STORAGE_5,
+        "v2_10": config.V2RAY_STORAGE_10,
+        "v2_15": config.V2RAY_STORAGE_15,
+        "v2_20": config.V2RAY_STORAGE_20,
+        "v2_25": config.V2RAY_STORAGE_25,
+        "v2_30": config.V2RAY_STORAGE_30,
+        "v2_40": config.V2RAY_STORAGE_40,
+        "v2_50": config.V2RAY_STORAGE_50,
+        "v2_60": config.V2RAY_STORAGE_60,
+        "v2_70": config.V2RAY_STORAGE_70,
+        "v2_80": config.V2RAY_STORAGE_80,
+        "v2_90": config.V2RAY_STORAGE_90,
+        "v2_100": config.V2RAY_STORAGE_100,
+        "express": config.EXPRESS_CENTRAL_STORAGE,
+    }
+
+    names_map = {
+        "v2_5": "V2ray ۵ گیگابایت",
+        "v2_10": "V2ray ۱۰ گیگابایت",
+        "v2_15": "V2ray ۱۵ گیگابایت",
+        "v2_20": "V2ray ۲۰ گیگابایت",
+        "v2_25": "V2ray ۲۵ گیگابایت",
+        "v2_30": "V2ray ۳۰ گیگابایت",
+        "v2_40": "V2ray ۴۰ گیگابایت",
+        "v2_50": "V2ray ۵۰ گیگابایت",
+        "v2_60": "V2ray ۶۰ گیگابایت",
+        "v2_70": "V2ray ۷۰ گیگابایت",
+        "v2_80": "V2ray ۸۰ گیگابایت",
+        "v2_90": "V2ray ۹۰ گیگابایت",
+        "v2_100": "V2ray ۱۰۰ گیگابایت",
+        "express": "اکانت‌های اکسپرس",
+    }
+
+    storage = storage_map.get(storage_type, [])
+    count = len(storage)
+    storage.clear()
+    save_all_storages()
+
+    await query.edit_message_text(text=f"🗑 <b>انبار {names_map.get(storage_type)} خالی شد!</b>\n\n✅ تعداد حذف‌شده: <code>{count}</code>", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="admin_storage_manager")]]), parse_mode="HTML")
+
 
 def generate_account_username(first_name: str) -> str:
     clean_name = "".join(e for e in first_name if e.isalnum()) or "User"
@@ -444,11 +898,18 @@ def format_express_account(acc_string: str, index: int = None) -> str:
 
 async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TYPE):
     v2ray_queue_storage_map = {
+        "v2_5gb": config.V2RAY_STORAGE_5,
         "v2_10gb": config.V2RAY_STORAGE_10,
         "v2_15gb": config.V2RAY_STORAGE_15,
         "v2_20gb": config.V2RAY_STORAGE_20,
+        "v2_25gb": config.V2RAY_STORAGE_25,
         "v2_30gb": config.V2RAY_STORAGE_30,
+        "v2_40gb": config.V2RAY_STORAGE_40,
+        "v2_50gb": config.V2RAY_STORAGE_50,
+        "v2_60gb": config.V2RAY_STORAGE_60,
         "v2_70gb": config.V2RAY_STORAGE_70,
+        "v2_80gb": config.V2RAY_STORAGE_80,
+        "v2_90gb": config.V2RAY_STORAGE_90,
         "v2_100gb": config.V2RAY_STORAGE_100,
     }
 
@@ -464,12 +925,12 @@ async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TY
         while storage and config.WAITING_QUEUE[plan_id]:
             waiting_user_id = config.WAITING_QUEUE[plan_id].pop(0)
             delivered_item = storage.pop(0)
-            save_all_storages() 
+            save_all_storages()
             try:
                 chat_member = await context.bot.get_chat(waiting_user_id)
                 user_name_identifier = generate_account_username(chat_member.first_name)
                 u_info = f"{chat_member.first_name}"
-            except: 
+            except:
                 user_name_identifier = generate_account_username("User")
                 u_info = f"<code>{waiting_user_id}</code>"
             database.add_order(waiting_user_id, user_name_identifier, plan_name, 0, f"🔗 <b>لینک اتصال:</b>\n<code>{delivered_item}</code>")
@@ -477,7 +938,8 @@ async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TY
                 remaining = len(storage)
                 await context.bot.send_message(chat_id=waiting_user_id, text=f"🎉 <b>اشتراک شما آماده شد!</b>\n\n📦 سرویس <b>{plan_name}</b> شارژ شد:\n🆔 <b>نام اشتراک:</b> <code>{user_name_identifier}</code>\n\n🔗 <b>لینک اتصال:</b>\n<code>{delivered_item}</code>\n\n📦 از انبار <b>{plan_name}</b> تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>", parse_mode="HTML")
                 await context.bot.send_message(chat_id=ADMIN_ID, text=f"✅ <b>تحویل موفقیت‌آمیز از صف انتظار</b>\n\n📦 پلن <b>{plan_name}</b> با موفقیت به کاربر {u_info} (<code>{waiting_user_id}</code>) که در صف بود تحویل داده شد.\n📦 موجودی باقی‌مانده در انبار: <code>{remaining}</code>", parse_mode="HTML")
-            except: pass
+            except:
+                pass
             await stock_alert.check_and_notify_low_stock(context, trigger_event=f"تحویل از صف {plan_name} به کاربر {u_info}")
     else:
         while config.WAITING_QUEUE[plan_id]:
@@ -485,12 +947,12 @@ async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TY
             if len(config.EXPRESS_CENTRAL_STORAGE) < needed_count: break
             waiting_user_id = config.WAITING_QUEUE[plan_id].pop(0)
             items_to_deliver = [config.EXPRESS_CENTRAL_STORAGE.pop(0) for _ in range(needed_count)]
-            save_all_storages() 
+            save_all_storages()
             try:
                 chat_member = await context.bot.get_chat(waiting_user_id)
                 user_name_identifier = generate_account_username(chat_member.first_name)
                 u_info = f"{chat_member.first_name}"
-            except: 
+            except:
                 user_name_identifier = generate_account_username("User")
                 u_info = f"<code>{waiting_user_id}</code>"
             formatted_accounts = ""
@@ -501,7 +963,8 @@ async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TY
                 remaining = len(config.EXPRESS_CENTRAL_STORAGE)
                 await context.bot.send_message(chat_id=waiting_user_id, text=f"🎉 <b>اشتراک اکسپرس شما آماده شد!</b>\n\n📦 سرویس <b>{plan_name}</b> شارژ شد:\n🆔 <b>شناسه خرید:</b> <code>{user_name_identifier}</code>\n\n{formatted_accounts}\n📦 از مخزن اکسپرس تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>", parse_mode="HTML")
                 await context.bot.send_message(chat_id=ADMIN_ID, text=f"✅ <b>تحویل موفقیت‌آمیز از صف اکسپرس</b>\n\n🔐 اکانت اکسپرس با موفقیت به کاربر {u_info} (<code>{waiting_user_id}</code>) تحویل داده شد.\n📦 موجودی باقی‌مانده در مخزن اکسپرس: <code>{remaining}</code>", parse_mode="HTML")
-            except: pass
+            except:
+                pass
             await stock_alert.check_and_notify_low_stock(context, trigger_event=f"تحویل از صف اکسپرس {plan_name} به کاربر {u_info}")
 
 # =====================================================================
@@ -631,31 +1094,6 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_v2ray = plan_id in V2RAY_PLANS
     plan = V2RAY_PLANS.get(plan_id) if is_v2ray else EXPRESS_PLANS.get(plan_id)
     if not plan: return
-    # بررسی خالی بودن انبار برای همه پلن‌های v2ray
-    if is_v2ray:
-        # special-case: unlimited plan is fulfilled immediately (no storage required)
-        if plan_id == "v2_unlimited":
-            plan_price = get_discounted_price(plan["price"])
-            user_balance = database.get_user_balance(user_id)
-            if user_balance < plan_price:
-                shortage = plan_price - user_balance
-                await query.edit_message_text(text=f"❌ <b>موجودی کافی نیست!</b>\n\n💰 قیمت: <code>{plan_price:,}</code> تومان\n💵 موجودی: <code>{user_balance:,}</code> تومان\n📉 کسری: <code>{shortage:,}</code> تومان", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⚡ شارژ حساب", callback_data="charge_wallet")],[InlineKeyboardButton("🔙 بازگشت", callback_data="buy_v2ray")]]), parse_mode="HTML")
-                return
-            database.update_user_balance(user_id, -plan_price)
-            user_name_identifier = generate_account_username(first_name)
-            database.add_order(user_id, user_name_identifier, plan['name'], plan_price, "🔓 اشتراک نامحدود")
-            await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n🔓 اشتراک نامحدود فعال شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
-            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید نامحدود</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان", parse_mode="HTML")
-            except: pass
-            return
-        v2ray_storage_map = {
-            "v2_10gb": config.V2RAY_STORAGE_10,
-            "v2_15gb": config.V2RAY_STORAGE_15,
-            "v2_20gb": config.V2RAY_STORAGE_20,
-            "v2_30gb": config.V2RAY_STORAGE_30,
-            "v2_70gb": config.V2RAY_STORAGE_70,
-            "v2_100gb": config.V2RAY_STORAGE_100,
-        }
     user_balance = database.get_user_balance(user_id)
     plan_price = get_discounted_price(plan["price"])
     if user_balance < plan_price:
@@ -665,11 +1103,18 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if is_v2ray:
         v2ray_storage_map = {
+            "v2_5gb": config.V2RAY_STORAGE_5,
             "v2_10gb": config.V2RAY_STORAGE_10,
             "v2_15gb": config.V2RAY_STORAGE_15,
             "v2_20gb": config.V2RAY_STORAGE_20,
+            "v2_25gb": config.V2RAY_STORAGE_25,
             "v2_30gb": config.V2RAY_STORAGE_30,
+            "v2_40gb": config.V2RAY_STORAGE_40,
+            "v2_50gb": config.V2RAY_STORAGE_50,
+            "v2_60gb": config.V2RAY_STORAGE_60,
             "v2_70gb": config.V2RAY_STORAGE_70,
+            "v2_80gb": config.V2RAY_STORAGE_80,
+            "v2_90gb": config.V2RAY_STORAGE_90,
             "v2_100gb": config.V2RAY_STORAGE_100,
         }
         storage = v2ray_storage_map.get(plan_id)
@@ -925,7 +1370,7 @@ async def support_received(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     # ارسال پیام کاربر به ادمین
     admin_text = (
         "🆘 <b>پیام پشتیبانی جدید</b>\n\n"
-        f"👤 کاربر: {html.escape(user_name)} ({html.escape(username)})\n"
+        f"👤 کاربر: {user_name} ({username})\n"
         f"🆔 آیدی: <code>{user_id}</code>\n\n"
         f"💬 <b>پیام:</b>\n{html.escape(user_text)}\n\n"
         "─ ─ ─ ─ ─ ─ ─ ─ ─\n"
@@ -981,7 +1426,7 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
     # ارسال پاسخ به کاربر
     try:
         user_data = database.load_system_data(f"support_user_{support_user_id}", {})
-        user_name = html.escape(user_data.get("user_name", "کاربر"))
+        user_name = user_data.get("user_name", "کاربر")
 
         await context.bot.send_message(
             chat_id=support_user_id,
@@ -1267,6 +1712,7 @@ async def user_history_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 🔥 هندلر جامع مرکزی دکمه‌های شیشه‌ای برای حل مشکل هدایت دکمه‌ها
 async def handle_main_menu_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
     if not query: return
     user_id = query.from_user.id
     if is_user_blacklisted(user_id):
@@ -1306,3 +1752,17 @@ async def handle_main_menu_callbacks(update: Update, context: ContextTypes.DEFAU
         return await user_history_menu(update, context)
     elif query.data == "admin_top_users":
         return await admin_top_users(update, context)
+    elif query.data == "admin_storage_manager":
+        return await admin_storage_manager(update, context)
+    elif query.data.startswith("manage_storage_"):
+        return await admin_storage_select(update, context)
+    elif query.data.startswith("view_storage_"):
+        return await admin_view_storage_items(update, context)
+    elif query.data.startswith("add_storage_item_"):
+        return await admin_add_storage_item_start(update, context)
+    elif query.data.startswith("remove_storage_item_"):
+        return await admin_remove_storage_item_start(update, context)
+    elif query.data.startswith("clear_storage_"):
+        return await admin_clear_storage(update, context)
+    elif query.data.startswith("confirm_clear_"):
+        return await admin_confirm_clear_storage(update, context)

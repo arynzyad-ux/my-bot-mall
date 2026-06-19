@@ -12,7 +12,7 @@ from config import (
     TOKEN, ADMIN_ID, GET_AMOUNT, GET_RECEIPT,
     ADMIN_GET_USER, ADMIN_GET_BALANCE_CHNG, ADMIN_GET_DISCOUNT, ADMIN_GET_BROADCAST,
     ADMIN_GET_BLOCK_ID, ADMIN_GET_UNBLOCK_ID, ADMIN_CHOOSE_STOCK_TYPE, ADMIN_GET_STOCK_CONTENT,
-    SUPPORT_MESSAGE
+    SUPPORT_MESSAGE, ADMIN_MANAGE_STORAGE_MENU, ADMIN_ADD_STORAGE_ITEM, ADMIN_REMOVE_STORAGE_ITEM
 )
 
 # فعال‌سازی لاگر سیستم جهت رهگیری دقیق خطاها
@@ -46,7 +46,8 @@ def main():
             CallbackQueryHandler(handlers.admin_block_start, pattern="^admin_block_user$"),
             CallbackQueryHandler(handlers.admin_unblock_start, pattern="^admin_unblock_user$"),
             CallbackQueryHandler(handlers.admin_broadcast_start, pattern="^admin_broadcast$"),
-            CallbackQueryHandler(handlers.admin_add_stock_menu, pattern="^admin_add_stock_menu$")
+            CallbackQueryHandler(handlers.admin_add_stock_menu, pattern="^admin_add_stock_menu$"),
+            CallbackQueryHandler(handlers.admin_storage_manager, pattern="^admin_storage_manager$")
         ],
         states={
             ADMIN_GET_USER: [MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.admin_wallet_user_received)],
@@ -56,7 +57,10 @@ def main():
             ADMIN_GET_UNBLOCK_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.admin_unblock_received)],
             ADMIN_GET_BROADCAST: [MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.admin_broadcast_received)],
             ADMIN_CHOOSE_STOCK_TYPE: [CallbackQueryHandler(handlers.admin_add_stock_select, pattern="^add_stock_")],
-            ADMIN_GET_STOCK_CONTENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.admin_add_stock_save)]
+            ADMIN_GET_STOCK_CONTENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.admin_add_stock_save)],
+            ADMIN_MANAGE_STORAGE_MENU: [CallbackQueryHandler(handlers.admin_storage_select, pattern="^manage_storage_")],
+            ADMIN_ADD_STORAGE_ITEM: [MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.admin_add_storage_item_save)],
+            ADMIN_REMOVE_STORAGE_ITEM: [MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.admin_remove_storage_item_process)]
         },
         fallbacks=[CallbackQueryHandler(handlers.admin_cancel, pattern="^admin_back$")],
         per_message=False

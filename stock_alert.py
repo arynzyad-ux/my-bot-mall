@@ -12,9 +12,9 @@ LOW_STOCK_THRESHOLD = 2
 
 # نگاشت انبارها به نام نمایشی و کلید پلن
 STOCK_MAP = {
-    "v2_20gb": {
-        "storage": lambda: config.V2RAY_STORAGE_20,
-        "label": "🚀 انبار ۲۰ گیگابایت V2ray",
+    "v2_5gb": {
+        "storage": lambda: config.V2RAY_STORAGE_5,
+        "label": "🚀 انبار ۵ گیگابایت V2ray",
     },
     "v2_10gb": {
         "storage": lambda: config.V2RAY_STORAGE_10,
@@ -24,13 +24,41 @@ STOCK_MAP = {
         "storage": lambda: config.V2RAY_STORAGE_15,
         "label": "🚀 انبار ۱۵ گیگابایت V2ray",
     },
+    "v2_20gb": {
+        "storage": lambda: config.V2RAY_STORAGE_20,
+        "label": "🚀 انبار ۲۰ گیگابایت V2ray",
+    },
+    "v2_25gb": {
+        "storage": lambda: config.V2RAY_STORAGE_25,
+        "label": "🚀 انبار ۲۵ گیگابایت V2ray",
+    },
     "v2_30gb": {
         "storage": lambda: config.V2RAY_STORAGE_30,
         "label": "🚀 انبار ۳۰ گیگابایت V2ray",
     },
+    "v2_40gb": {
+        "storage": lambda: config.V2RAY_STORAGE_40,
+        "label": "🚀 انبار ۴۰ گیگابایت V2ray",
+    },
+    "v2_50gb": {
+        "storage": lambda: config.V2RAY_STORAGE_50,
+        "label": "🚀 انبار ۵۰ گیگابایت V2ray",
+    },
+    "v2_60gb": {
+        "storage": lambda: config.V2RAY_STORAGE_60,
+        "label": "🚀 انبار ۶۰ گیگابایت V2ray",
+    },
     "v2_70gb": {
         "storage": lambda: config.V2RAY_STORAGE_70,
         "label": "🚀 انبار ۷۰ گیگابایت V2ray",
+    },
+    "v2_80gb": {
+        "storage": lambda: config.V2RAY_STORAGE_80,
+        "label": "🚀 انبار ۸۰ گیگابایت V2ray",
+    },
+    "v2_90gb": {
+        "storage": lambda: config.V2RAY_STORAGE_90,
+        "label": "🚀 انبار ۹۰ گیگابایت V2ray",
     },
     "v2_100gb": {
         "storage": lambda: config.V2RAY_STORAGE_100,
@@ -105,10 +133,12 @@ async def check_and_notify_low_stock(context, trigger_event: str = ""):
     all_counts = get_all_stock_counts()
     summary_text = (
         f"\n📦 <b>موجودی کلی انبارها:</b>\n"
-            f"  ◽ ۱۰ گیگ: <code>{all_counts['v2_10gb']['count']}</code> | ۱۵ گیگ: <code>{all_counts['v2_15gb']['count']}</code> | ۲۰ گیگ: <code>{all_counts['v2_20gb']['count']}</code>\n"
-            f"  ◽ ۳۰ گیگ: <code>{all_counts['v2_30gb']['count']}</code>\n"
-            f"  ◽ ۷۰ گیگ: <code>{all_counts['v2_70gb']['count']}</code> | ۱۰۰ گیگ: <code>{all_counts['v2_100gb']['count']}</code>\n"
-            f"  ◽ اکسپرس: <code>{all_counts['express']['count']}</code>\n"
+        f"  ◽ ۵ گیگ: <code>{all_counts['v2_5gb']['count']}</code> | ۱۰ گیگ: <code>{all_counts['v2_10gb']['count']}</code> | ۱۵ گیگ: <code>{all_counts['v2_15gb']['count']}</code>\n"
+        f"  ◽ ۲۰ گیگ: <code>{all_counts['v2_20gb']['count']}</code> | ۲۵ گیگ: <code>{all_counts['v2_25gb']['count']}</code> | ۳۰ گیگ: <code>{all_counts['v2_30gb']['count']}</code>\n"
+        f"  ◽ ۴۰ گیگ: <code>{all_counts['v2_40gb']['count']}</code> | ۵۰ گیگ: <code>{all_counts['v2_50gb']['count']}</code> | ۶۰ گیگ: <code>{all_counts['v2_60gb']['count']}</code>\n"
+        f"  ◽ ۷۰ گیگ: <code>{all_counts['v2_70gb']['count']}</code> | ۸۰ گیگ: <code>{all_counts['v2_80gb']['count']}</code> | ۹۰ گیگ: <code>{all_counts['v2_90gb']['count']}</code>\n"
+        f"  ◽ ۱۰۰ گیگ: <code>{all_counts['v2_100gb']['count']}</code>\n"
+        f"  ◽ اکسپرس: <code>{all_counts['express']['count']}</code>\n"
     )
 
     alert_text = (
