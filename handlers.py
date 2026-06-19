@@ -10,6 +10,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler
 from config import (
     TOKEN, ADMIN_ID, ADMIN_IDS, REQUIRED_CHANNELS, CANCEL_KEYBOARD, CARD_NUMBERS, V2RAY_PLANS, EXPRESS_PLANS,
+    MIN_DEPOSIT_AMOUNT, MAX_DEPOSIT_AMOUNT, FREE_TEST_STORAGE,
     GET_AMOUNT, GET_RECEIPT, save_all_storages, get_discounted_price, GLOBAL_DISCOUNT, set_global_discount,
     BLACKLISTED_USERS, toggle_blacklist_user, REFERRER_REWARD, REFERREE_REWARD, BOT_USERNAME,
     ADMIN_GET_USER, ADMIN_GET_BALANCE_CHNG, ADMIN_GET_DISCOUNT, ADMIN_GET_BROADCAST,
@@ -321,20 +322,30 @@ async def admin_view_stock(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = (
         "📦 <b>موجودی انبارها و ظرفیت فعلی مخازن:</b>\n\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_5))} انبار ۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_5)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_10))} انبار ۱۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_10)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_15))} انبار ۱۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_15)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_20))} انبار ۲۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_20)}</code> کانفیگ\n"
-        # 25 گیگ حذف شد
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_25))} انبار ۲۵ گیگابایت: <code>{len(config.V2RAY_STORAGE_25)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_30))} انبار ۳۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_30)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_40))} انبار ۴۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_40)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_50))} انبار ۵۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_50)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_60))} انبار ۶۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_60)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_70))} انبار ۷۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_70)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_80))} انبار ۸۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_80)}</code> کانفیگ\n"
+        f"{stock_status_icon(len(config.V2RAY_STORAGE_90))} انبار ۹۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_90)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.V2RAY_STORAGE_100))} انبار ۱۰۰ گیگابایت: <code>{len(config.V2RAY_STORAGE_100)}</code> کانفیگ\n"
         f"{stock_status_icon(len(config.EXPRESS_CENTRAL_STORAGE))} مخزن مرکزی اکسپرس: <code>{len(config.EXPRESS_CENTRAL_STORAGE)}</code> اکانت\n\n"
         f"⏳ <b>صف‌های انتظار:</b>\n"
-        f"◽ صف ۱۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_10gb'])}</code> نفر | صف ۱۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_15gb'])}</code> نفر\n"
-        f"◽ صف ۲۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_20gb'])}</code> نفر\n"
-        f"◽ صف ۳۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_30gb'])}</code> نفر\n"
-        f"◽ صف ۷۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_70gb'])}</code> نفر | صف ۱۰۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_100gb'])}</code> نفر\n"
-        f"◽ صف اکسپرس تک کاربره: <code>{len(config.WAITING_QUEUE['ex_1user'])}</code> نفر | دو کاربره: <code>{len(config.WAITING_QUEUE['ex_2user'])}</code> نفر"
+        f"◽ صف ۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_5gb'])}</code> نفر | صف ۱۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_10gb'])}</code> نفر\n"
+        f"◽ صف ۱۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_15gb'])}</code> نفر | صف ۲۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_20gb'])}</code> نفر\n"
+        f"◽ صف ۲۵ گیگ: <code>{len(config.WAITING_QUEUE['v2_25gb'])}</code> نفر | صف ۳۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_30gb'])}</code> نفر\n"
+        f"◽ صف ۴۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_40gb'])}</code> نفر | صف ۵۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_50gb'])}</code> نفر\n"
+        f"◽ صف ۶۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_60gb'])}</code> نفر | صف ۷۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_70gb'])}</code> نفر\n"
+        f"◽ صف ۸۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_80gb'])}</code> نفر | صف ۹۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_90gb'])}</code> نفر\n"
+        f"◽ صف ۱۰۰ گیگ: <code>{len(config.WAITING_QUEUE['v2_100gb'])}</code> نفر\n"
+        f"◽ صف اکسپرس تک کاربره: <code>{len(config.WAITING_QUEUE['ex_1user'])}</code> نفر | دو کاربره: <code>{len(config.WAITING_QUEUE['ex_2user'])}</code> نفر\n"
+        f"🔹 انبار تست رایگان: <code>{len(config.FREE_TEST_STORAGE)}</code> آیتم\n"
     )
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="admin_back")]]), parse_mode="HTML")
 
@@ -343,11 +354,15 @@ async def admin_add_stock_menu(update: Update, context: ContextTypes.DEFAULT_TYP
     await query.answer()
     text = "📥 <b>بخش شارژ هوشمند انبار ربات</b>\n\nلطفاً انتخاب کنید قصد دارید به کدام انبار کالا یا کانفیگ جدید اضافه کنید:"
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🚀 شارژ ۱۰ گیگ V2ray", callback_data="add_stock_v2_10"), InlineKeyboardButton("🚀 شارژ ۱۵ گیگ V2ray", callback_data="add_stock_v2_15")],
-        [InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20")],
-        [InlineKeyboardButton("🚀 شارژ ۳۰ گیگ V2ray", callback_data="add_stock_v2_30"), InlineKeyboardButton("🚀 شارژ ۷۰ گیگ V2ray", callback_data="add_stock_v2_70")],
+        [InlineKeyboardButton("🚀 شارژ ۵ گیگ V2ray", callback_data="add_stock_v2_5"), InlineKeyboardButton("🚀 شارژ ۱۰ گیگ V2ray", callback_data="add_stock_v2_10")],
+        [InlineKeyboardButton("🚀 شارژ ۱۵ گیگ V2ray", callback_data="add_stock_v2_15"), InlineKeyboardButton("🚀 شارژ ۲۰ گیگ V2ray", callback_data="add_stock_v2_20")],
+        [InlineKeyboardButton("🚀 شارژ ۲۵ گیگ V2ray", callback_data="add_stock_v2_25"), InlineKeyboardButton("🚀 شارژ ۳۰ گیگ V2ray", callback_data="add_stock_v2_30")],
+        [InlineKeyboardButton("🚀 شارژ ۴۰ گیگ V2ray", callback_data="add_stock_v2_40"), InlineKeyboardButton("🚀 شارژ ۵۰ گیگ V2ray", callback_data="add_stock_v2_50")],
+        [InlineKeyboardButton("🚀 شارژ ۶۰ گیگ V2ray", callback_data="add_stock_v2_60"), InlineKeyboardButton("🚀 شارژ ۷۰ گیگ V2ray", callback_data="add_stock_v2_70")],
+        [InlineKeyboardButton("🚀 شارژ ۸۰ گیگ V2ray", callback_data="add_stock_v2_80"), InlineKeyboardButton("🚀 شارژ ۹۰ گیگ V2ray", callback_data="add_stock_v2_90")],
         [InlineKeyboardButton("🚀 شارژ ۱۰۰ گیگ V2ray", callback_data="add_stock_v2_100")],
         [InlineKeyboardButton("🔐 شارژ مخزن اکسپرس", callback_data="add_stock_express")],
+        [InlineKeyboardButton("🧪 شارژ انبار تست رایگان", callback_data="add_stock_test")],
         [InlineKeyboardButton("🔙 بازگشت به پنل مدیریت", callback_data="admin_back")]
     ])
     await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
@@ -359,14 +374,21 @@ async def admin_add_stock_select(update: Update, context: ContextTypes.DEFAULT_T
     stock_type = query.data.replace("add_stock_", "")
     context.user_data["selected_stock_type"] = stock_type
     names_dict = {
+        "v2_5":  "🚀 انبار ۵ گیگابایت V2ray",
         "v2_10": "🚀 انبار ۱۰ گیگابایت V2ray",
         "v2_15": "🚀 انبار ۱۵ گیگابایت V2ray",
         "v2_20": "🚀 انبار ۲۰ گیگابایت V2ray",
-        # 25 گیگ حذف شد
+        "v2_25": "🚀 انبار ۲۵ گیگابایت V2ray",
         "v2_30": "🚀 انبار ۳۰ گیگابایت V2ray",
+        "v2_40": "🚀 انبار ۴۰ گیگابایت V2ray",
+        "v2_50": "🚀 انبار ۵۰ گیگابایت V2ray",
+        "v2_60": "🚀 انبار ۶۰ گیگابایت V2ray",
         "v2_70": "🚀 انبار ۷۰ گیگابایت V2ray",
+        "v2_80": "🚀 انبار ۸۰ گیگابایت V2ray",
+        "v2_90": "🚀 انبار ۹۰ گیگابایت V2ray",
         "v2_100": "🚀 انبار ۱۰۰ گیگابایت V2ray",
         "express": "🔐 مخزن مرکزی اکانت‌های اکسپرس",
+        "test": "🧪 انبار تست رایگان"
     }
     text = f"✍️ <b>شما مخزن زیر را انتخاب کردید:</b>\n📍 {names_dict.get(stock_type)}\n\n"
     if stock_type == "express":
@@ -381,13 +403,18 @@ async def admin_add_stock_save(update: Update, context: ContextTypes.DEFAULT_TYP
     stock_type = context.user_data.get("selected_stock_type")
 
     stock_save_map = {
-        "v2_10":  (config.V2RAY_STORAGE_10,  "۱۰ گیگ",  "v2_10gb"),
-        "v2_15":  (config.V2RAY_STORAGE_15,  "۱۵ گیگ",  "v2_15gb"),
-        "v2_20":  (config.V2RAY_STORAGE_20,  "۲۰ گیگ",  "v2_20gb"),
-        # 25 گیگ حذف شد
-        "v2_30":  (config.V2RAY_STORAGE_30,  "۳۰ گیگ",  "v2_30gb"),
-        
-        "v2_70":  (config.V2RAY_STORAGE_70,  "۷۰ گیگ",  "v2_70gb"),
+        "v2_5":  (config.V2RAY_STORAGE_5,  "۵ گیگ",  "v2_5gb"),
+        "v2_10": (config.V2RAY_STORAGE_10, "۱۰ گیگ", "v2_10gb"),
+        "v2_15": (config.V2RAY_STORAGE_15, "۱۵ گیگ", "v2_15gb"),
+        "v2_20": (config.V2RAY_STORAGE_20, "۲۰ گیگ", "v2_20gb"),
+        "v2_25": (config.V2RAY_STORAGE_25, "۲۵ گیگ", "v2_25gb"),
+        "v2_30": (config.V2RAY_STORAGE_30, "۳۰ گیگ", "v2_30gb"),
+        "v2_40": (config.V2RAY_STORAGE_40, "۴۰ گیگ", "v2_40gb"),
+        "v2_50": (config.V2RAY_STORAGE_50, "۵۰ گیگ", "v2_50gb"),
+        "v2_60": (config.V2RAY_STORAGE_60, "۶۰ گیگ", "v2_60gb"),
+        "v2_70": (config.V2RAY_STORAGE_70, "۷۰ گیگ", "v2_70gb"),
+        "v2_80": (config.V2RAY_STORAGE_80, "۸۰ گیگ", "v2_80gb"),
+        "v2_90": (config.V2RAY_STORAGE_90, "۹۰ گیگ", "v2_90gb"),
         "v2_100": (config.V2RAY_STORAGE_100, "۱۰۰ گیگ", "v2_100gb"),
     }
 
@@ -404,6 +431,10 @@ async def admin_add_stock_save(update: Update, context: ContextTypes.DEFAULT_TYP
         await update.message.reply_text(f"✅ به مخزن اکسپرس اضافه شد.\n📦 موجودی: <code>{len(config.EXPRESS_CENTRAL_STORAGE)}</code>", parse_mode="HTML")
         await check_and_deliver_queue("ex_1user", context)
         await check_and_deliver_queue("ex_2user", context)
+    elif stock_type == "test":
+        config.FREE_TEST_STORAGE.append(content)
+        save_all_storages()
+        await update.message.reply_text(f"✅ به انبار تست رایگان اضافه شد.\n📦 موجودی: <code>{len(config.FREE_TEST_STORAGE)}</code>", parse_mode="HTML")
     return await admin_cancel(update, context)
 
 async def admin_full_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -444,11 +475,18 @@ def format_express_account(acc_string: str, index: int = None) -> str:
 
 async def check_and_deliver_queue(plan_id: str, context: ContextTypes.DEFAULT_TYPE):
     v2ray_queue_storage_map = {
+        "v2_5gb":  config.V2RAY_STORAGE_5,
         "v2_10gb": config.V2RAY_STORAGE_10,
         "v2_15gb": config.V2RAY_STORAGE_15,
         "v2_20gb": config.V2RAY_STORAGE_20,
+        "v2_25gb": config.V2RAY_STORAGE_25,
         "v2_30gb": config.V2RAY_STORAGE_30,
+        "v2_40gb": config.V2RAY_STORAGE_40,
+        "v2_50gb": config.V2RAY_STORAGE_50,
+        "v2_60gb": config.V2RAY_STORAGE_60,
         "v2_70gb": config.V2RAY_STORAGE_70,
+        "v2_80gb": config.V2RAY_STORAGE_80,
+        "v2_90gb": config.V2RAY_STORAGE_90,
         "v2_100gb": config.V2RAY_STORAGE_100,
     }
 
@@ -531,6 +569,7 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, ove
     welcome_text = override_text if override_text else f"👋 <b>سلام {user.first_name} عزیز</b>\nبه ربات خدمات ما خوش آمدید.\n\n🎯 لطفاً از منوی زیر انتخاب کنید:"
     keyboard = [
         [InlineKeyboardButton("🛒 خرید اشتراک ویژه", callback_data="buy_subscription"), InlineKeyboardButton("💰 کیف پول من", callback_data="wallet")],
+        [InlineKeyboardButton("🧪 تست رایگان", callback_data="free_test"), InlineKeyboardButton("📦 لیست انبار تست", callback_data="test_stock")],
         [InlineKeyboardButton("📚 بخش آموزش‌ها", callback_data="tutorials"), InlineKeyboardButton("📋 تاریخچه خریدها", callback_data="user_history")],
         [InlineKeyboardButton("🤝 دعوت از دوستان", callback_data="invite_friends"), InlineKeyboardButton("🆘 پشتیبانی آنلاین", callback_data="support")]
     ]
@@ -620,6 +659,71 @@ async def express_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard.append([InlineKeyboardButton("🔙 بازگشت", callback_data="buy_subscription")])
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
 
+async def free_test_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if is_user_blacklisted(query.from_user.id) or not await check_joined_channels(query.from_user.id, context): return
+    await query.answer()
+    text = (
+        "🧪 <b>تست رایگان</b>\n\n"
+        "با انتخاب این گزینه یک حساب یا کانفیگ تست رایگان از انبار تست دریافت می‌کنید.\n"
+        "این سرویس کاملاً رایگان است و فقط تا زمانی که موجودی تست داشته باشیم فعال است.\n\n"
+        "⚠️ توجه: برای دریافت تست رایگان، باید ابتدا در کانال‌های اسپانسر عضو باشید."
+    )
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎁 دریافت تست رایگان", callback_data="receive_free_test")],
+        [InlineKeyboardButton("📦 مشاهده لیست انبار تست", callback_data="test_stock")],
+        [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main")]
+    ])
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+
+async def view_test_stock_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if is_user_blacklisted(query.from_user.id) or not await check_joined_channels(query.from_user.id, context): return
+    await query.answer()
+    count = len(FREE_TEST_STORAGE)
+    text = (
+        "📦 <b>لیست انبار تست رایگان</b>\n\n"
+        f"تعداد موجودی: <code>{count}</code> آیتم\n\n"
+    )
+    if count > 0:
+        text += "🔹 اولین آیتم‌های موجود در انبار:\n"
+        for idx, item in enumerate(FREE_TEST_STORAGE[:10], 1):
+            safe_item = html.escape(item)
+            text += f"{idx}. <code>{safe_item}</code>\n"
+        if count > 10:
+            text += f"\n... و {count - 10} آیتم دیگر در انبار موجود است."
+    else:
+        text += "⛔ فعلاً موجودی تست رایگان تمام شده است."
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔙 بازگشت", callback_data="free_test")]
+    ])
+    await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode="HTML")
+
+async def process_free_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    user_id = query.from_user.id
+    if is_user_blacklisted(user_id) or not await check_joined_channels(user_id, context): return
+    await query.answer()
+    if not FREE_TEST_STORAGE:
+        await query.edit_message_text(text="⛔ <b>موجودی تست رایگان فعلاً تمام شده است.</b>\n\nلطفاً بعداً دوباره تلاش کنید.", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 بازگشت", callback_data="free_test")]]), parse_mode="HTML")
+        return
+    delivered = FREE_TEST_STORAGE.pop(0)
+    save_all_storages()
+    first_name = html.escape(query.from_user.first_name)
+    user_name_identifier = generate_account_username(first_name)
+    database.add_order(user_id, user_name_identifier, "تست رایگان", 0, f"{html.escape(delivered)}")
+    remaining = len(FREE_TEST_STORAGE)
+    await query.edit_message_text(
+        text=(
+            "🎉 <b>تست رایگان شما آماده شد!</b>\n\n"
+            f"🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n"
+            f"<code>{html.escape(delivered)}</code>\n\n"
+            f"📦 از انبار تست رایگان تحویل شد. موجودی باقی‌مانده: <code>{remaining}</code>"
+        ),
+        reply_markup=CANCEL_KEYBOARD,
+        parse_mode="HTML"
+    )
+
 async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     user_id = query.from_user.id
@@ -633,27 +737,19 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not plan: return
     # بررسی خالی بودن انبار برای همه پلن‌های v2ray
     if is_v2ray:
-        # special-case: unlimited plan is fulfilled immediately (no storage required)
-        if plan_id == "v2_unlimited":
-            plan_price = get_discounted_price(plan["price"])
-            user_balance = database.get_user_balance(user_id)
-            if user_balance < plan_price:
-                shortage = plan_price - user_balance
-                await query.edit_message_text(text=f"❌ <b>موجودی کافی نیست!</b>\n\n💰 قیمت: <code>{plan_price:,}</code> تومان\n💵 موجودی: <code>{user_balance:,}</code> تومان\n📉 کسری: <code>{shortage:,}</code> تومان", reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⚡ شارژ حساب", callback_data="charge_wallet")],[InlineKeyboardButton("🔙 بازگشت", callback_data="buy_v2ray")]]), parse_mode="HTML")
-                return
-            database.update_user_balance(user_id, -plan_price)
-            user_name_identifier = generate_account_username(first_name)
-            database.add_order(user_id, user_name_identifier, plan['name'], plan_price, "🔓 اشتراک نامحدود")
-            await query.edit_message_text(text=f"🎉 <b>خرید موفق:</b>\n\n🆔 <b>شناسه:</b> <code>{user_name_identifier}</code>\n\n🔓 اشتراک نامحدود فعال شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
-            try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"🛍 <b>گزارش خرید نامحدود</b>\n\n👤 خریدار: {first_name} ({username})\n📦 سرویس: <b>{plan['name']}</b>\n💵 قیمت: <code>{plan_price:,}</code> تومان", parse_mode="HTML")
-            except: pass
-            return
         v2ray_storage_map = {
+            "v2_5gb":  config.V2RAY_STORAGE_5,
             "v2_10gb": config.V2RAY_STORAGE_10,
             "v2_15gb": config.V2RAY_STORAGE_15,
             "v2_20gb": config.V2RAY_STORAGE_20,
+            "v2_25gb": config.V2RAY_STORAGE_25,
             "v2_30gb": config.V2RAY_STORAGE_30,
+            "v2_40gb": config.V2RAY_STORAGE_40,
+            "v2_50gb": config.V2RAY_STORAGE_50,
+            "v2_60gb": config.V2RAY_STORAGE_60,
             "v2_70gb": config.V2RAY_STORAGE_70,
+            "v2_80gb": config.V2RAY_STORAGE_80,
+            "v2_90gb": config.V2RAY_STORAGE_90,
             "v2_100gb": config.V2RAY_STORAGE_100,
         }
     user_balance = database.get_user_balance(user_id)
@@ -665,11 +761,18 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if is_v2ray:
         v2ray_storage_map = {
+            "v2_5gb":  config.V2RAY_STORAGE_5,
             "v2_10gb": config.V2RAY_STORAGE_10,
             "v2_15gb": config.V2RAY_STORAGE_15,
             "v2_20gb": config.V2RAY_STORAGE_20,
+            "v2_25gb": config.V2RAY_STORAGE_25,
             "v2_30gb": config.V2RAY_STORAGE_30,
+            "v2_40gb": config.V2RAY_STORAGE_40,
+            "v2_50gb": config.V2RAY_STORAGE_50,
+            "v2_60gb": config.V2RAY_STORAGE_60,
             "v2_70gb": config.V2RAY_STORAGE_70,
+            "v2_80gb": config.V2RAY_STORAGE_80,
+            "v2_90gb": config.V2RAY_STORAGE_90,
             "v2_100gb": config.V2RAY_STORAGE_100,
         }
         storage = v2ray_storage_map.get(plan_id)
@@ -690,7 +793,7 @@ async def process_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
             database.update_user_balance(user_id, -plan_price)
             config.WAITING_QUEUE[plan_id].append(user_id)
             save_all_storages()
-            await query.edit_message_text(text=f"💸 مبلغ <code>{plan_price:,}</code> تومان از حساب شما کسر شد.\n\n⏳ شما در <b>صف انتظار</b> پلن <b>{plan['name']}</b> قرار گرفتید.\nبه محض شارژ انبار، اشتراک شما به صورت خودکار تحویل داده خواهد شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
+            await query.edit_message_text(text=f"💸 مبلغ <code>{plan_price:,}</code> تومان از حساب شما کسر شد.\n\n⏳ شما در <b>صف انتظار</b> پلن <b>{plan['name']}</b> قرار گرفتید.\n🔜 به محض شارژ انبار، اشتراک شما تا دقایقی دیگر ارسال خواهد شد.", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
             try: await context.bot.send_message(chat_id=ADMIN_ID, text=f"⚠️ <b>هشدار کمبود انبار و تشکیل صف!</b>\n\n👤 کاربر: {first_name} ({username})\n📦 پلن: <b>{plan['name']}</b>\n📥 کاربر وارد صف انتظار شد.", parse_mode="HTML")
             except Exception as e: logging.error(f"Failed to send queue alert: {e}")
     else:
@@ -812,15 +915,19 @@ async def request_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     text = (
         "💰 <b>شارژ کیف پول</b>\n\n"
         "✍️ مبلغ شارژ مورد نظر را به تومان و به صورت عددی ارسال کنید:\n\n"
-        "🔹 حداقل: <code>150,000</code> تومان\n"
-        "🔹 حداکثر: <code>10,000,000</code> تومان"
+        f"🔹 حداقل: <code>{MIN_DEPOSIT_AMOUNT:,}</code> تومان\n"
+        f"🔹 حداکثر: <code>{MAX_DEPOSIT_AMOUNT:,}</code> تومان"
     )
     await query.edit_message_text(text=text, reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
     return GET_AMOUNT
 async def process_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_input = update.message.text.translate(str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789'))
-    if not user_input.isdigit() or not (150000 <= int(user_input) <= 10000000):
-        await update.message.reply_text("❌ <b>مبلغ نامعتبر!</b>\n\nمبلغ باید بین <code>150,000</code> تا <code>10,000,000</code> تومان باشد.\nدوباره وارد کنید:", reply_markup=CANCEL_KEYBOARD, parse_mode="HTML")
+    if not user_input.isdigit() or not (MIN_DEPOSIT_AMOUNT <= int(user_input) <= MAX_DEPOSIT_AMOUNT):
+        await update.message.reply_text(
+            f"❌ <b>مبلغ نامعتبر!</b>\n\nمبلغ باید بین <code>{MIN_DEPOSIT_AMOUNT:,}</code> تا <code>{MAX_DEPOSIT_AMOUNT:,}</code> تومان باشد.\nدوباره وارد کنید:",
+            reply_markup=CANCEL_KEYBOARD,
+            parse_mode="HTML"
+        )
         return GET_AMOUNT
     
     context.user_data["charge_amount"] = int(user_input)
@@ -1267,6 +1374,7 @@ async def user_history_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 🔥 هندلر جامع مرکزی دکمه‌های شیشه‌ای برای حل مشکل هدایت دکمه‌ها
 async def handle_main_menu_callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
     if not query: return
     user_id = query.from_user.id
     if is_user_blacklisted(user_id):
@@ -1284,6 +1392,12 @@ async def handle_main_menu_callbacks(update: Update, context: ContextTypes.DEFAU
         return await v2ray_menu(update, context)
     elif query.data == "buy_express":
         return await express_menu(update, context)
+    elif query.data == "free_test":
+        return await free_test_menu(update, context)
+    elif query.data == "test_stock":
+        return await view_test_stock_menu(update, context)
+    elif query.data == "receive_free_test":
+        return await process_free_test(update, context)
     elif query.data.startswith("order_"):
         return await process_order(update, context)
     elif query.data.startswith("my_subs_page_"):

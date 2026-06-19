@@ -36,22 +36,38 @@ SUPPORT_MESSAGE = 10
 # 🤖 یوزنیم ربات به صورت کاملاً دقیق و اصلاح شده
 BOT_USERNAME = "vpn_mall_bot"
 
-# 📦 تعرفه و مخازن پلن‌های V2ray
+# � حداقل و حداکثر مبلغ واریز به تومان
+MIN_DEPOSIT_AMOUNT = 100000
+MAX_DEPOSIT_AMOUNT = 10000000
+
+# �📦 تعرفه و مخازن پلن‌های V2ray
 V2RAY_PLANS = {
-    "v2_10gb":  {"name": "🚀 پلن ۱۰ گیگابایت",  "price": 100000},
-    "v2_15gb":  {"name": "🚀 پلن ۱۵ گیگابایت",  "price": 147000},
-    "v2_20gb":  {"name": "🚀 پلن ۲۰ گیگابایت",  "price": 191000},
-    "v2_30gb":  {"name": "🚀 پلن ۳۰ گیگابایت",  "price": 273000},
-    "v2_70gb":  {"name": "🚀 پلن ۷۰ گیگابایت",  "price": 513000},
-    "v2_100gb": {"name": "🚀 پلن ۱۰۰ گیگابایت", "price": 600000},
-    "v2_unlimited": {"name": "🚀 پلن نامحدود", "price": 700000}
+    "v2_5gb":   {"name": "🚀 پلن ۵ گیگابایت",   "price": 40000},
+    "v2_10gb":  {"name": "🚀 پلن ۱۰ گیگابایت",  "price": 75000},
+    "v2_15gb":  {"name": "🚀 پلن ۱۵ گیگابایت",  "price": 108000},
+    "v2_20gb":  {"name": "🚀 پلن ۲۰ گیگابایت",  "price": 140000},
+    "v2_25gb":  {"name": "🚀 پلن ۲۵ گیگابایت",  "price": 175000},
+    "v2_30gb":  {"name": "🚀 پلن ۳۰ گیگابایت",  "price": 204000},
+    "v2_40gb":  {"name": "🚀 پلن ۴۰ گیگابایت",  "price": 260000},
+    "v2_50gb":  {"name": "🚀 پلن ۵۰ گیگابایت",  "price": 315000},
+    "v2_60gb":  {"name": "🚀 پلن ۶۰ گیگابایت",  "price": 372000},
+    "v2_70gb":  {"name": "🚀 پلن ۷۰ گیگابایت",  "price": 434000},
+    "v2_80gb":  {"name": "🚀 پلن ۸۰ گیگابایت",  "price": 488000},
+    "v2_90gb":  {"name": "🚀 پلن ۹۰ گیگابایت",  "price": 549000},
+    "v2_100gb": {"name": "🚀 پلن ۱۰۰ گیگابایت", "price": 600000}
 }
+V2RAY_STORAGE_5 = []
 V2RAY_STORAGE_10 = []
 V2RAY_STORAGE_15 = []
 V2RAY_STORAGE_20 = []
-# 25GB plan removed
+V2RAY_STORAGE_25 = []
 V2RAY_STORAGE_30 = []
+V2RAY_STORAGE_40 = []
+V2RAY_STORAGE_50 = []
+V2RAY_STORAGE_60 = []
 V2RAY_STORAGE_70 = []
+V2RAY_STORAGE_80 = []
+V2RAY_STORAGE_90 = []
 V2RAY_STORAGE_100 = []
 
 # 🔐 تعرفه و مخازن پلن‌های اکسپرس
@@ -60,15 +76,22 @@ EXPRESS_PLANS = {
     "ex_2user": {"name": "🔐 اکسپرس ۲ کاربره", "price": 1000000}
 }
 EXPRESS_CENTRAL_STORAGE = []
+FREE_TEST_STORAGE = []
 
 # ⏳ صف‌های انتظار در صورت اتمام موجودی انبارها
 WAITING_QUEUE = {
+    "v2_5gb":  [],
     "v2_10gb": [],
     "v2_15gb": [],
     "v2_20gb": [],
-    # 25GB queue removed
+    "v2_25gb": [],
     "v2_30gb": [],
+    "v2_40gb": [],
+    "v2_50gb": [],
+    "v2_60gb": [],
     "v2_70gb": [],
+    "v2_80gb": [],
+    "v2_90gb": [],
     "v2_100gb": [],
     "ex_1user": [],
     "ex_2user": []
